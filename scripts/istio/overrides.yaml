@@ -28,8 +28,23 @@ global:
 citadel:
   enabled: true
 
-#jaeger:
-#  enabled: true
+jaeger:
+  enabled: true
+  cassandra:
+    persistence:
+      # This setting could cause upgrade errors if modified between deployments
+      # of Aspen Mesh. If you see errors that the StatefulSet cannot be patched
+      # due to updates to forbidden fields, you will have to delete the
+      # "istio-cassandra" StatefulSet resource before performing an upgrade.
+      size: 10Gi
+  schema:
+    annotations:
+      helm.sh/hook: post-install,post-upgrade
+      helm.sh/hook-delete-policy: before-hook-creation
+      helm.sh/hook-weight: "0"
+
+pilot:
+  traceSampling: "1.0"
 
 aspen-mesh-event-storage:
   resources:

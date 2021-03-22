@@ -78,8 +78,7 @@ if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
 fi
 if (( $(kubectl get ns | grep -c openshift) > 0 )); then
   OPENSHIFT=true
-  VALUES_OPTS+=("--set=istio_cni.enabled=true")
-  VALUES_OPTS+=("--set=sidecarInjectorWebhook.injectedAnnotations.k8s.v1.cni.cncf.io/networks=istio-cni")
+  VALUES_OPTS+=("--values=$DIR/cni-overrides.yaml")
 else
   OPENSHIFT=false
 fi
