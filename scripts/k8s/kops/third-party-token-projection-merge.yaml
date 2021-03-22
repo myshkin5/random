@@ -1,0 +1,9 @@
+spec:
+  kubeAPIServer:
+    apiAudiences:
+    - api
+    - istio-ca
+    serviceAccountIssuer: kubernetes.default.svc
+    serviceAccountKeyFile:
+    - /srv/kubernetes/server.key
+    serviceAccountSigningKeyFile: /srv/kubernetes/server.key

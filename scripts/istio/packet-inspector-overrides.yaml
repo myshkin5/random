@@ -1,0 +1,73 @@
+aspen-mesh-controlplane:
+  clusterId: youthful-ferret
+  userAuth:
+    type: none
+
+aspen-mesh-secure-ingress:
+  externalDnsEnabled: true
+  lets-encrypt-email: dwayne@aspenmesh.io
+
+external-dns:
+  txtOwnerId: youthful-ferret
+
+global:
+  customDnsNames:
+  - serviceAccountName: aspen-mesh-packet-inspector
+    serviceAccountNamespace: istio-system
+    dnsName: aspen-mesh-packet-inspector.istio-system.svc.cluster.local
+  - serviceAccountName: aspen-mesh-packet-inspector-gcb
+    serviceAccountNamespace: istio-system
+    dnsName: analysis-emulator.istio-system
+  - serviceAccountName: aspen-mesh-analysis-emulator
+    serviceAccountNamespace: analysis-emulator
+    dnsName: aspen-mesh-analysis-emulator.analysis-emulator
+  proxy:
+    logLevel: info
+    accessLogFile: "/dev/null"
+  imagePullSecrets:
+  - aspen-mesh-pull-secret
+  - aspenmesh-istio-private-pr-pull-secret
+  tracer:
+    zipkin:
+      # address is the Host:Port for reporting trace data in zipkin format. If
+      # not specified, will default to zipkin service (port 9411) in the same
+      # namespace as the other istio components.
+      address: aspen-mesh-jaeger-collector.istio-system:9411
+  enableEccCertificates: true
+
+citadel:
+  enabled: true
+
+aspen-mesh-packet-inspector:
+  enabled: true
+#  daemonSetBufferMemoryPercent: 10
+#  resources:
+#    requests:
+#      memory: "256Mi"
+#      cpu: "2000m"
+#    limits:
+#      memory: "256Mi"
+#      cpu: "2000m"
+
+jaeger:
+  enabled: true
+  cassandra:
+    persistence:
+      # This setting could cause upgrade errors if modified between deployments
+      # of Aspen Mesh. If you see errors that the StatefulSet cannot be patched
+      # due to updates to forbidden fields, you will have to delete the
+      # "istio-cassandra" StatefulSet resource before performing an upgrade.
+      size: 10Gi
+  schema:
+    annotations:
+      helm.sh/hook: post-install,post-upgrade
+      helm.sh/hook-delete-policy: before-hook-creation
+      helm.sh/hook-weight: "0"
+
+pilot:
+  traceSampling: "1.0"
+
+aspen-mesh-event-storage:
+  resources:
+    requests: null
+    limits: null

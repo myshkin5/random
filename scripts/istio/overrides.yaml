@@ -1,0 +1,37 @@
+aspen-mesh-controlplane:
+  clusterId: youthful-ferret
+  userAuth:
+    type: none
+
+aspen-mesh-secure-ingress:
+  externalDnsEnabled: true
+  lets-encrypt-email: dwayne@aspenmesh.io
+
+external-dns:
+  txtOwnerId: youthful-ferret
+
+global:
+  proxy:
+    logLevel: info
+    accessLogFile: "/dev/null"
+  imagePullSecrets:
+  - aspen-mesh-pull-secret
+  - aspenmesh-istio-private-pr-pull-secret
+  tracer:
+    zipkin:
+      # address is the Host:Port for reporting trace data in zipkin format. If
+      # not specified, will default to zipkin service (port 9411) in the same
+      # namespace as the other istio components.
+      address: aspen-mesh-jaeger-collector.istio-system:9411
+  enableEccCertificates: true
+
+citadel:
+  enabled: true
+
+#jaeger:
+#  enabled: true
+
+aspen-mesh-event-storage:
+  resources:
+    requests: null
+    limits: null
