@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: packet-inspector-traffic-server
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: packet-inspector-traffic-client
+  labels:
+    istio-injection: enabled
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: server
+  namespace: packet-inspector-traffic-server
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: server
+  namespace: packet-inspector-traffic-server
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - server
+  http:
+  - route:
+    - destination:
+        host: server.packet-inspector-traffic-server.svc.cluster.local
+        port:
+          number: 8000
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: server
+  namespace: packet-inspector-traffic-server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: client
+  namespace: packet-inspector-traffic-client
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: packet-inspector-traffic-server
+  labels:
+    app: server
+spec:
+  ports:
+  - name: http
+    port: 8000
+  selector:
+    app: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client
+  namespace: packet-inspector-traffic-client
+  labels:
+    app: client
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: client
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: packet-inspector-traffic-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      serviceAccountName: server
+      containers:
+      - image: docker.io/skydoctor/httpbin-http2
+        imagePullPolicy: IfNotPresent
+        name: server
+        ports:
+        - containerPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: packet-inspector-traffic-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      serviceAccountName: client
+      containers:
+      - image: governmentpaas/curl-ssl
+        imagePullPolicy: IfNotPresent
+        name: client
+        command: ["/bin/sleep", "3650d"]
+        volumeMounts:
+        - mountPath: /etc/client/tls
+          name: secret-volume
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: client-secret
+          optional: true

@@ -8,6 +8,8 @@ helm delete -n packet-inspector-benchmark packet-inspector-benchmark-client || t
 helm delete -n packet-inspector-benchmark packet-inspector-benchmark-server || true
 helm delete -n analysis-emulator analysis-emulator || true
 kubectl delete ns packet-inspector-traffic || true
+kubectl delete ns packet-inspector-traffic-client || true
+kubectl delete ns packet-inspector-traffic-server || true
 kubectl delete ns packet-inspector-benchmark || true
 kubectl delete ns analysis-emulator || true
 
