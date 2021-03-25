@@ -70,9 +70,6 @@ helm upgrade $BASE_NAME "$BASE_CHART" \
 
 if [[ $OPENSHIFT == "true" ]]; then
   CNI_CHART="$RELEASE_PATH/manifests/charts/istio-cni"
-  if [[ $MINOR_VER == "1.5" ]]; then
-    CNI_CHART="$RELEASE_PATH/install/kubernetes/helm/istio-cni"
-  fi
   if [[ -d "$CNI_CHART" ]]; then
     helm upgrade istio-cni "$CNI_CHART" \
       --install \
@@ -114,18 +111,17 @@ helm upgrade istiod-canary \
   --set=traffic-claim-enforcer.enabled=false \
   --set=global.mtls.enabled=false "$@"
 
-sleep 30
-kubectl wait --for=condition=ready --namespace istio-system --selector=istio.io/rev=canary pods
+sleep 10
+kubectl wait --for=condition=available --namespace istio-system --selector=istio.io/rev=canary deployment
 
 kubectl get pods --namespace istio-system | wc -l
 
-kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | grep -v packet-inspector-traffic-client | while read -r NS _; do
+kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | while read -r NS _; do
   kubectl label namespace "$NS" istio-injection- istio.io/rev=canary
-  kubectl rollout restart deployment --namespace "$NS"
-
-  sleep 60
-
-  kubectl wait --for=condition=ready --namespace "$NS" --all pods
+  kubectl get deployment --namespace "$NS" -o name | while read -r DEPLOYMENT; do
+    kubectl rollout restart --namespace "$NS" "$DEPLOYMENT"
+    kubectl rollout status --namespace "$NS" "$DEPLOYMENT" --watch=true
+  done
 done
 
 helm upgrade istiod \
@@ -138,11 +134,14 @@ helm upgrade istio-ingress \
 
 kubectl get namespace --selector=istio.io/rev=canary | tail -n +2 | while read -r NS _; do
   kubectl label namespace "$NS" istio-injection=enabled istio.io/rev-
+  kubectl get deployment --namespace "$NS" -o name | while read -r DEPLOYMENT; do
+    kubectl rollout restart --namespace "$NS" "$DEPLOYMENT"
+    kubectl rollout status --namespace "$NS" "$DEPLOYMENT" --watch=true
+  done
 done
 
 helm delete istiod-canary --namespace=istio-system
 
-sleep 60
 kubectl wait --for=condition=ready --namespace istio-system --selector=istio.io/rev=default pods
 
 kubectl get pods --namespace istio-system | wc -l
@@ -157,9 +156,6 @@ while true; do
 done
 
 ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/analysis-emulator"
-if [[ $MINOR_VER == "1.5" ]]; then
-  ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/gcb-emulator"
-fi
 if [ -d "$ANALYSIS_CHART" ]; then
   kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
   helm upgrade analysis-emulator "$ANALYSIS_CHART" \
