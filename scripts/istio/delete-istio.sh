@@ -27,4 +27,8 @@ kubectl delete ns istio-system || true
 
 kubectl get crds | grep -e istio.io -e aspenmesh.io -e cert-manager.io | while read -r crd _; do
   kubectl delete crd "$crd"
-done
+done || true
+
+kubectl delete validatingwebhookconfiguration aspen-mesh-controlplane || true
+kubectl delete validatingwebhookconfiguration aspen-mesh-secure-ingress || true
+kubectl delete validatingwebhookconfiguration traffic-claim-enforcer || true

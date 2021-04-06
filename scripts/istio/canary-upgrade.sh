@@ -65,7 +65,7 @@ fi
 kubectl get pods --namespace istio-system | wc -l
 
 helm upgrade $BASE_NAME "$BASE_CHART" \
-  --install \
+  --install --set=global.configValidation=false \
   --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
 
 if [[ $OPENSHIFT == "true" ]]; then
@@ -79,7 +79,7 @@ if [[ $OPENSHIFT == "true" ]]; then
 fi
 
 if [[ ${PULLSECRET:-} != "" ]]; then
-  kubectl apply -f "$PULLSECRET" -n istio-system
+  kubectl apply -f "$PULLSECRET" --namespace istio-system
 fi
 
 while true; do
@@ -90,8 +90,6 @@ while true; do
   fi
   sleep 5
 done
-
-kubectl delete validatingwebhookconfiguration -n istio-system istiod-istio-system
 
 helm upgrade istiod-canary \
   "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
@@ -128,6 +126,10 @@ helm upgrade istiod \
   "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
   --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
 
+helm upgrade $BASE_NAME "$BASE_CHART" \
+  --set=global.configValidation=true \
+  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+
 helm upgrade istio-ingress \
   "$RELEASE_PATH/manifests/charts/gateways/istio-ingress" \
   --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
@@ -155,6 +157,8 @@ while true; do
   fi
 done
 
+echo "$LOAD_BALANCER" > load-balancer.value
+
 ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/analysis-emulator"
 if [ -d "$ANALYSIS_CHART" ]; then
   kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
@@ -163,40 +167,40 @@ if [ -d "$ANALYSIS_CHART" ]; then
     --namespace=analysis-emulator "${VALUES_OPTS[@]}" "$@"
 fi
 
-kubectl apply -f "$DIR/ready.yaml"
-kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
-  --namespace istio-ready
-if [[ $OPENSHIFT == "true" ]]; then
-  kubectl apply -f "$DIR/net-attach-def.yaml" \
+if [[ ${CHECK_READY:-} != "false" ]]; then
+  kubectl apply -f "$DIR/ready.yaml"
+  kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
     --namespace istio-ready
-fi
-
-dots() {
-  while [ -f "$TMP_FILE" ]; do
-    echo -n .
-    sleep 10
-  done
-}
-
-echo "http://$LOAD_BALANCER/status/200"
-set +x
-date
-echo "Time: 1 min 2 min 3 min 4 min 5 min 6 min 7 min"
-dots &
-while true; do
-  STATUS=$(curl --silent \
-    --output /dev/null \
-    --write-out "%{http_code}\n" \
-    "http://$LOAD_BALANCER/status/200" || true)
-  if [[ $STATUS == 200 ]]; then
-    break
+  if [[ $OPENSHIFT == "true" ]]; then
+    kubectl apply -f "$DIR/net-attach-def.yaml" \
+      --namespace istio-ready
   fi
-  sleep 5
-done
-echo
-date
-set -x
 
-kubectl delete namespace istio-ready
+  dots() {
+    while [ -f "$TMP_FILE" ]; do
+      echo -n .
+      sleep 10
+    done
+  }
 
-echo "export LOAD_BALANCER=$LOAD_BALANCER"
+  echo "http://$LOAD_BALANCER/status/200"
+  set +x
+  date
+  echo "Time: 1 min 2 min 3 min 4 min 5 min 6 min 7 min"
+  dots &
+  while true; do
+    STATUS=$(curl --silent \
+      --output /dev/null \
+      --write-out "%{http_code}\n" \
+      "http://$LOAD_BALANCER/status/200" || true)
+    if [[ $STATUS == 200 ]]; then
+      break
+    fi
+    sleep 5
+  done
+  echo
+  date
+  set -x
+
+  kubectl delete namespace istio-ready
+fi
