@@ -4,6 +4,7 @@ aspen-mesh-controlplane:
     type: none
 
 aspen-mesh-secure-ingress:
+  enabled: false
   externalDnsEnabled: true
   lets-encrypt-email: dwayne@aspenmesh.io
 
@@ -50,7 +51,7 @@ aspen-mesh-packet-inspector:
 #      cpu: "2000m"
 
 jaeger:
-  enabled: true
+  enabled: false
   cassandra:
     persistence:
       # This setting could cause upgrade errors if modified between deployments

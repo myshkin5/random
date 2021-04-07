@@ -9,6 +9,13 @@ if [[ -f "metadata.json" || -d "auth" || -d "tls" || $(find . -name terraform.\*
   exit 1
 fi
 
+if [[ $(grep -c "name: $NAME$" template.install-config.yaml) != 1 ]]; then
+  echo "NAME env var doesn't match name in template install config"
+  exit 1
+fi
+
+date
+
 cp template.install-config.yaml install-config.yaml
 openshift-install create cluster --dir=. --log-level=info
 

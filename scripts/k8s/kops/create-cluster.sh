@@ -14,6 +14,8 @@ if [ -n "${K8S_VERSION:-}" ]; then
   VER_OPT="--kubernetes-version=$K8S_VERSION"
 fi
 
+date
+
 my_ip=$(curl -s https://api.ipify.org)
 
 kops create cluster \

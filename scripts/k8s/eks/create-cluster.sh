@@ -10,6 +10,8 @@ if [ -n "${K8S_VERSION:-}" ]; then
   VER_OPT="--version=$K8S_VERSION"
 fi
 
+date
+
 eksctl create cluster \
   --name="$NAME" \
   $VER_OPT \
