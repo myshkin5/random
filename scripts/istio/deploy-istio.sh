@@ -90,9 +90,15 @@ if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
   VALIDATION="--set=global.configValidation=false"
 fi
 
+SKIP_CRDS=()
+if [ -d "$BASE_CHART/crds" ]; then
+  kubectl apply -f "$BASE_CHART/crds"
+  SKIP_CRDS=("--skip-crds")
+fi
+
 helm upgrade $BASE_NAME "$BASE_CHART" \
   --install $VALIDATION \
-  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+  --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
 if [[ $OPENSHIFT == "true" ]]; then
   CNI_CHART="$RELEASE_PATH/manifests/charts/istio-cni"

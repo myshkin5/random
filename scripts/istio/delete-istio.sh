@@ -12,6 +12,7 @@ kubectl delete ns packet-inspector-traffic-client || true
 kubectl delete ns packet-inspector-traffic-server || true
 kubectl delete ns packet-inspector-benchmark || true
 kubectl delete ns analysis-emulator || true
+kubectl delete ns test-ns || true
 
 kubectl delete -f istio-ready.yaml || true
 kubectl delete ns istio-ready || true

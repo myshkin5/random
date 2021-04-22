@@ -64,9 +64,15 @@ fi
 
 kubectl get pods --namespace istio-system | wc -l
 
+SKIP_CRDS=()
+if [ -d "$BASE_CHART/crds" ]; then
+  kubectl apply -f "$BASE_CHART/crds"
+  SKIP_CRDS=("--skip-crds")
+fi
+
 helm upgrade $BASE_NAME "$BASE_CHART" \
   --install --set=global.configValidation=false \
-  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+  --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
 if [[ $OPENSHIFT == "true" ]]; then
   CNI_CHART="$RELEASE_PATH/manifests/charts/istio-cni"

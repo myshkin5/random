@@ -35,4 +35,4 @@ kubectl cp ~/workspace/hey_linux_amd64 -c client \
 kubectl exec -n packet-inspector-traffic-client -c client "$POD" \
   -- chmod +x /hey
 kubectl exec -n packet-inspector-traffic-client -c client "$POD" \
-  -- ./hey -n 1000 -q 10 -c 5 http://server.packet-inspector-traffic-server.svc.cluster.local:8000/get
+  -- ./hey -n 1000 -q 10 -c 10 http://server.packet-inspector-traffic-server.svc.cluster.local:8000/get
