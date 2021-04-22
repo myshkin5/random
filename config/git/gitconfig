@@ -1,0 +1,20 @@
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	sur = submodule update --init --recursive
+        lol = log --graph --decorate --pretty=oneline --abbrev-commit
+        lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	stash-all = stash --keep-index --include-untracked
+	aliases = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort
+	short = rev-parse --short HEAD
+	config-prs-upstream = config --add remote.upstream.fetch '+refs/pull/*/head:refs/remotes/upstream/pr/*'
+	config-prs-origin = config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
+[push]
+	default = matching
+[user]
+	name = Dwayne Schultz
+	email = d.schultz@f5.com
+[url "git@github.com:"]
+	insteadOf = https://github.com/
