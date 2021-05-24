@@ -13,5 +13,6 @@
     ```
 1. Edit `$HOME/.zshrc`
    1. Set `ZSH_THEME` to `dwayne`
-   1. Add `Z` to `plugins` list
+   1. Add `pyenv` and `Z` to `plugins` list
    1. Comment out iterm integration (handled above)
+   1. Add `unsetopt share_history` to keep each shell with its own history

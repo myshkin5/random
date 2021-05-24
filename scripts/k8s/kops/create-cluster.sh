@@ -9,6 +9,8 @@ touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
 INSTANCE_TYPE=${INSTANCE_TYPE:=t3a.large}
+NODE_COUNT=${NODE_COUNT:=5}
+NETWORKING=${NETWORKING:=flannel}
 VER_OPT=""
 if [ -n "${K8S_VERSION:-}" ]; then
   VER_OPT="--kubernetes-version=$K8S_VERSION"
@@ -22,14 +24,14 @@ kops create cluster \
     $VER_OPT \
     --master-size="$INSTANCE_TYPE" \
     --node-size="$INSTANCE_TYPE" \
-    --node-count=5 \
+    --node-count="$NODE_COUNT" \
     --zones=us-west-2b \
     --name="$NAME" \
     --authorization RBAC \
     --ssh-public-key="$HOME/.ssh/id_rsa_dev_k8s.pub" \
     --topology=private \
     --admin-access="$my_ip/32" \
-    --networking=flannel
+    --networking="$NETWORKING"
 
 EDITOR="$DIR/../../yq-merge-editor.sh $DIR/third-party-token-projection-merge.yaml" kops edit cluster --name "$NAME"
 EDITOR="$DIR/../../yq-merge-editor.sh $DIR/ext-dns-merge.yaml" kops edit cluster --name "$NAME"
@@ -44,20 +46,6 @@ dots() {
   done
 }
 
-set +x
-date
-echo "Time: 1 min 2 min 3 min 4 min 5 min 6 min 7 min"
-dots &
-while true; do
-  RET=0
-  kops validate cluster > /dev/null 2>&1 || RET=$?
-  if [[ $RET == 0 ]]; then
-    break
-  fi
-  sleep 5
-done
-echo
-date
-set -x
+kops validate cluster --wait 10m
 
 kubectl apply -f "$DIR/kubernetes-sigs-metrics-server-v0.3.7-components-kops.yaml"

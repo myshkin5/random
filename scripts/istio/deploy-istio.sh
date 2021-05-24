@@ -85,15 +85,15 @@ else
   OPENSHIFT=false
 fi
 
-VALIDATION=""
-if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
-  VALIDATION="--set=global.configValidation=false"
-fi
-
 SKIP_CRDS=()
 if [ -d "$BASE_CHART/crds" ]; then
   kubectl apply -f "$BASE_CHART/crds"
   SKIP_CRDS=("--skip-crds")
+fi
+
+VALIDATION=""
+if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
+  VALIDATION="--set=global.configValidation=false"
 fi
 
 helm upgrade $BASE_NAME "$BASE_CHART" \

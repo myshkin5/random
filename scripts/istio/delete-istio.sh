@@ -17,6 +17,7 @@ kubectl delete ns test-ns || true
 kubectl delete -f istio-ready.yaml || true
 kubectl delete ns istio-ready || true
 
+helm delete -n istio-system istio-egress || true
 helm delete -n istio-system istio-ingress || true
 helm delete -n istio-system istiod || true
 helm delete -n kube-system istio-cni || true

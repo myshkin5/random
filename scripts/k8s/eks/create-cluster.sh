@@ -5,6 +5,7 @@ set -xeuEo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 INSTANCE_TYPE=${INSTANCE_TYPE:=t3a.large}
+NODE_COUNT=${NODE_COUNT:=5}
 VER_OPT=""
 if [ -n "${K8S_VERSION:-}" ]; then
   VER_OPT="--version=$K8S_VERSION"
@@ -16,8 +17,8 @@ eksctl create cluster \
   --name="$NAME" \
   $VER_OPT \
   --node-type="$INSTANCE_TYPE" \
-  --nodes-min=5 \
-  --nodes-max=5 \
+  --nodes-min="$NODE_COUNT" \
+  --nodes-max="$NODE_COUNT" \
   --ssh-public-key="$HOME/.ssh/id_rsa_dev_k8s.pub" \
   --kubeconfig="$KUBECONFIG"
 
