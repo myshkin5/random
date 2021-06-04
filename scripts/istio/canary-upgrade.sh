@@ -15,7 +15,7 @@ if [ ! -d "$RELEASE_PATH" ]; then
 fi
 
 if [[ $OVERRIDES == "" ]]; then
-  OVERRIDES="$DIR/overrides.yaml"
+  OVERRIDES="$DIR/overrides/default.yaml"
   echo "Defaulting overrides to $OVERRIDES"
 fi
 

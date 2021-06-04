@@ -4,7 +4,7 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-if [[ $RELEASE_PATH == "" ]]; then
+if [[ ${RELEASE_PATH:-} == "" ]]; then
   echo "RELEASE_PATH is undefined"
   exit 1
 fi
@@ -14,8 +14,8 @@ if [ ! -d "$RELEASE_PATH" ]; then
   exit 1
 fi
 
-if [[ $OVERRIDES == "" ]]; then
-  OVERRIDES="$DIR/overrides.yaml"
+if [[ ${OVERRIDES:-} == "" ]]; then
+  OVERRIDES="$DIR/overrides/default.yaml"
   echo "Defaulting overrides to $OVERRIDES"
 fi
 
@@ -24,14 +24,22 @@ touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
 kubectl apply -f "$DIR/istio-ns.yaml"
+if [[ ${MULTICLUSTER_NETWORK:-} != "" ]]; then
+  kubectl label namespace istio-system "topology.istio.io/network=${MULTICLUSTER_NETWORK}"
+fi
 kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
   --namespace istio-system
 
 if [[ ${UPDATE_CA_CERT:-} != "false" ]]; then
-  "$DIR/generate-ca-cert.sh"
-  kubectl create secret generic cacerts -n istio-system --from-file=ecc/ca-cert.pem \
-    --from-file=ecc/ca-key.pem --from-file=ecc/root-cert.pem \
-    --from-file=ecc/cert-chain.pem \
+  if [[ ${CA_CERT_DIR:-} == "" ]]; then
+    "$DIR/generate-ca-cert.sh"
+    CA_CERT_DIR=./ecc
+  fi
+  kubectl create secret generic cacerts -n istio-system \
+    --from-file="$CA_CERT_DIR/ca-cert.pem" \
+    --from-file="$CA_CERT_DIR/ca-key.pem" \
+    --from-file="$CA_CERT_DIR/root-cert.pem" \
+    --from-file="$CA_CERT_DIR/cert-chain.pem" \
     --dry-run -o yaml |
     kubectl apply -f -
 fi
@@ -39,7 +47,7 @@ fi
 BASE_CHART="$RELEASE_PATH/manifests/charts/base"
 BASE_NAME=istio-base
 if [ -d "$BASE_CHART" ]; then
-  VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" | \
+  VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" |
     awk '{ print $2 }')
   MINOR_VER=${VER:0:3}
   if [[ $VER =~ .*-am.* ]]; then
@@ -118,7 +126,7 @@ if [[ ${PULLSECRET:-} != "" ]]; then
 fi
 
 while true; do
-  COUNT=$(kubectl get crds | \
+  COUNT=$(kubectl get crds |
     grep -c 'istio.io\|cert-manager.io\|aspenmesh.io') || true
   if (( COUNT >= CRD_COUNT )); then
     break

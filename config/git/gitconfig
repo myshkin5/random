@@ -11,6 +11,7 @@
 	short = rev-parse --short HEAD
 	config-prs-upstream = config --add remote.upstream.fetch '+refs/pull/*/head:refs/remotes/upstream/pr/*'
 	config-prs-origin = config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
+	recent = !git --no-pager branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [push]
 	default = matching
 [user]
