@@ -1,0 +1,24 @@
+periodics:
+- interval: 1m
+  agent: kubernetes
+  name: echo-test
+  spec:
+    containers:
+    - image: alpine
+      command: ["/bin/date"]
+postsubmits:
+- name: test-postsubmit
+  decorate: true
+  spec:
+    containers:
+    - image: alpine
+      command: ["/bin/printenv"]
+presubmits:
+- name: test-presubmit
+  decorate: true
+  always_run: true
+  skip_report: true
+  spec:
+    containers:
+    - image: alpine
+      command: ["/bin/printenv"]

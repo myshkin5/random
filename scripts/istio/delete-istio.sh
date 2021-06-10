@@ -34,3 +34,14 @@ done || true
 kubectl delete validatingwebhookconfiguration aspen-mesh-controlplane || true
 kubectl delete validatingwebhookconfiguration aspen-mesh-secure-ingress || true
 kubectl delete validatingwebhookconfiguration traffic-claim-enforcer || true
+
+FOUND=false
+kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | while read -r NS _; do
+  echo "Found $NS namespace with Istio injection"
+  FOUND=true
+done
+if [ "$FOUND" == "true" ]; then
+  exit 1
+fi
+
+echo "Istio successfully deleted"

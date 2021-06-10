@@ -20,6 +20,7 @@ eksctl create cluster \
   --nodes-min="$NODE_COUNT" \
   --nodes-max="$NODE_COUNT" \
   --ssh-public-key="$HOME/.ssh/id_rsa_dev_k8s.pub" \
+  --external-dns-access \
   --kubeconfig="$KUBECONFIG"
 
 kubectl apply -f "$DIR/../kubernetes-sigs-metrics-server-v0.4.2-components.yaml"

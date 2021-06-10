@@ -1,0 +1,115 @@
+apiVersion: policy.aspenmesh.io/v1alpha1
+kind: SecureIngress
+metadata:
+  name: prow-ingress
+  namespace: istio-system
+spec:
+  domainName: "prow.dwayne-prow-dev.dev.twistio.io"
+  exposedApplications:
+  - applicationReference:
+      name: controlplane
+      namespace: istio-system
+    serviceReference:
+      name: aspen-mesh-controlplane
+      namespace: istio-system
+  - applicationReference:
+      name: hook
+      namespace: prow
+    serviceReference:
+      name: hook
+      namespace: prow
+  - applicationReference:
+      name: deck
+      namespace: prow
+    serviceReference:
+      name: deck
+      namespace: prow
+---
+apiVersion: policy.aspenmesh.io/v1alpha1
+kind: Application
+metadata:
+  name: deck
+  namespace: prow
+spec:
+  inbound:
+    ports:
+    - number: 80
+      protocol: HTTP
+      paths:
+      - expose:
+          public: true
+          jwtSecured: false
+        uri:
+          prefix: "/"
+---
+apiVersion: policy.aspenmesh.io/v1alpha1
+kind: Application
+metadata:
+  name: hook
+  namespace: prow
+spec:
+  inbound:
+    ports:
+    - number: 8888
+      protocol: HTTP
+      paths:
+      - expose:
+          public: true
+          jwtSecured: false
+        uri:
+          prefix: "/hook"
+---
+apiVersion: policy.aspenmesh.io/v1alpha1
+kind: Application
+metadata:
+  name: controlplane
+  namespace: istio-system
+spec:
+  inbound:
+    ports:
+    - number: 19001
+      protocol: HTTP
+      paths:
+      - expose:
+          public: true
+          jwtSecured: false
+        uri:
+          prefix: "/v1"
+      - expose:
+          public: true
+          jwtSecured: false
+        uri:
+          prefix: "/client"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: controlplane
+  namespace: istio-system
+spec:
+  host: aspen-mesh-controlplane.istio-system.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: deck
+  namespace: prow
+spec:
+  host: deck.prow.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: hook
+  namespace: prow
+spec:
+  host: hook.prow.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: DISABLE
