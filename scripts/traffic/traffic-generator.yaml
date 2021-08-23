@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: packet-inspector-traffic-server
+  name: traffic-server
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: packet-inspector-traffic-client
+  name: traffic-client
   labels:
     istio-injection: enabled
 ---
@@ -16,7 +16,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: server
-  namespace: packet-inspector-traffic-server
+  namespace: traffic-server
 spec:
   selector:
     istio: ingressgateway
@@ -32,7 +32,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: server
-  namespace: packet-inspector-traffic-server
+  namespace: traffic-server
 spec:
   hosts:
   - "*"
@@ -41,7 +41,7 @@ spec:
   http:
   - route:
     - destination:
-        host: server.packet-inspector-traffic-server.svc.cluster.local
+        host: server.traffic-server.svc.cluster.local
         port:
           number: 8000
 ---
@@ -49,19 +49,19 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: server
-  namespace: packet-inspector-traffic-server
+  namespace: traffic-server
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: client
-  namespace: packet-inspector-traffic-client
+  namespace: traffic-client
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: server
-  namespace: packet-inspector-traffic-server
+  namespace: traffic-server
   labels:
     app: server
 spec:
@@ -75,7 +75,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: client
-  namespace: packet-inspector-traffic-client
+  namespace: traffic-client
   labels:
     app: client
 spec:
@@ -89,7 +89,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server
-  namespace: packet-inspector-traffic-server
+  namespace: traffic-server
 spec:
   replicas: 2
   selector:
@@ -112,7 +112,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: client
-  namespace: packet-inspector-traffic-client
+  namespace: traffic-client
 spec:
   replicas: 1
   selector:

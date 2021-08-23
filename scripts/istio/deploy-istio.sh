@@ -88,7 +88,7 @@ if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
 fi
 if (( $(kubectl get ns | grep -c openshift) > 0 )); then
   OPENSHIFT=true
-  VALUES_OPTS+=("--values=$DIR/cni-overrides.yaml")
+  VALUES_OPTS+=("--values=$DIR/overrides/cni.yaml")
 else
   OPENSHIFT=false
 fi

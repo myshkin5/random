@@ -6,13 +6,14 @@ openshift-install destroy cluster --dir=. --log-level=info || true
 
 aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$NAME*" | jq
 
-DEV_ZONE=$(aws route53 list-hosted-zones-by-name --dns-name dev.twistio.io. | \
-  jq '.HostedZones[] | select(.Name == "dev.twistio.io.") | .Id' -r | \
-  cut -d/ -f 3)
+while true; do
+  DEV_ZONE=$(aws route53 list-hosted-zones-by-name --dns-name dev.twistio.io. | \
+    jq '.HostedZones[] | select(.Name == "dev.twistio.io.") | .Id' -r | \
+    cut -d/ -f 3) && break
+done
 while true; do
   aws route53 list-resource-record-sets --hosted-zone-id "$DEV_ZONE" \
-    --query "ResourceRecordSets[?Name == 'api.$NAME.dev.twistio.io.']" | jq || continue
-  break
+    --query "ResourceRecordSets[?Name == 'api.$NAME.dev.twistio.io.']" | jq && break
 done
 
 # REC="$(aws route53 list-resource-record-sets --hosted-zone-id "$DEV_ZONE"
@@ -23,6 +24,5 @@ done
 
 while true; do
   aws route53 list-hosted-zones-by-name --dns-name dev.twistio.io. | \
-    jq ".HostedZones[] | select(.Name == \"$NAME.dev.twistio.io.\")" || continue
-  break
+    jq ".HostedZones[] | select(.Name == \"$NAME.dev.twistio.io.\")" && break
 done
