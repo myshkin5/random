@@ -11,6 +11,8 @@ kubectl delete ns packet-inspector-traffic || true
 kubectl delete ns packet-inspector-traffic-client || true
 kubectl delete ns packet-inspector-traffic-server || true
 kubectl delete ns packet-inspector-benchmark || true
+kubectl delete ns traffic-client || true
+kubectl delete ns traffic-server || true
 kubectl delete ns analysis-emulator || true
 kubectl delete ns test-ns || true
 

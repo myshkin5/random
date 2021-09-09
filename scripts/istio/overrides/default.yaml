@@ -4,6 +4,7 @@ aspen-mesh-controlplane:
     type: none
 
 aspen-mesh-secure-ingress:
+  enabled: false
   externalDnsEnabled: true
   lets-encrypt-email: dwayne@aspenmesh.io
 
@@ -25,11 +26,15 @@ global:
       address: aspen-mesh-jaeger-collector.istio-system:9411
   enableEccCertificates: true
 
+#meshConfig:
+#  pathNormalization:
+#    normalization: DECODE_AND_MERGE_SLASHES
+
 citadel:
   enabled: true
 
 jaeger:
-  enabled: true
+  enabled: false
   cassandra:
     persistence:
       # This setting could cause upgrade errors if modified between deployments

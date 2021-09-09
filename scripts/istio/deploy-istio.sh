@@ -58,7 +58,7 @@ if [ -d "$BASE_CHART" ]; then
       CRD_COUNT=36
       ;;
     1.9)
-      if [ $AM_RELEASE == "true" ]; then
+      if [ ${AM_RELEASE:-} == "true" ]; then
         CRD_COUNT=23
       else
         CRD_COUNT=12
