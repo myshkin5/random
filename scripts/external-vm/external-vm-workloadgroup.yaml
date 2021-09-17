@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadGroup
+metadata:
+  name: external-vm
+  namespace: external-vm
+spec:
+  metadata:
+    labels:
+      app: external-vm
+  template:
+    serviceAccount: external-vm
+    network: ""

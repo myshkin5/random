@@ -49,7 +49,7 @@ BASE_NAME=istio-base
 if [ -d "$BASE_CHART" ]; then
   VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" |
     awk '{ print $2 }')
-  MINOR_VER=${VER:0:3}
+  MINOR_VER=$(echo "$VER" | cut -d \. -f "1-2")
   if [[ $VER =~ .*-am.* ]]; then
     AM_RELEASE=true
   fi
@@ -62,6 +62,14 @@ if [ -d "$BASE_CHART" ]; then
         CRD_COUNT=23
       else
         CRD_COUNT=12
+      fi
+      ;;
+    1.11)
+      if [ ${AM_RELEASE:-} == "true" ]; then
+        echo "Unknown 1.11 release"
+        exit 1
+      else
+        CRD_COUNT=13
       fi
       ;;
     *)

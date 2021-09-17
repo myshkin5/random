@@ -24,3 +24,10 @@ eksctl create cluster \
   --kubeconfig="$KUBECONFIG"
 
 kubectl apply -f "$DIR/../kubernetes-sigs-metrics-server-v0.4.2-components.yaml"
+
+aws cloudformation describe-stacks --stack-name "eksctl-$NAME-cluster" \
+  | jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="VPC") | .OutputValue' > vpc-id.value
+
+aws cloudformation describe-stacks --stack-name "eksctl-$NAME-cluster" \
+  | jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="SubnetsPublic") | .OutputValue' \
+  | cut -d , -f 1 > public-subnet-id.value
