@@ -4,7 +4,7 @@ set -euEo pipefail
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--[no-]human] [-a minutes] [-r minutes]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--[no-]human] [-a minutes] [-r minutes] [-c cache-file-path]
 
 Displays minutes remaining for an SSO session.
 
@@ -12,6 +12,8 @@ Available options:
 
 -h, --help          Print this help and exit
 -v, --verbose       Print script debug info
+-c, --cache-file    Specifies the cache file path to use (defaults to most
+                    recently modified file in \$HOME/.aws/cli/cache)
     --human         Output in human readable form (1:30 instead of 1.5)
     --no-human      Output floating point minutes (default)
 -a, --add           Add specified minutes (default: 0)
@@ -45,12 +47,17 @@ parse-params() {
   HUMAN=0
   ADD_MINUTES=0
   RED_THRESHOLD=0
+  CLI_CACHE=""
 
   while true; do
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
+    -c | --cache-file)
+      CLI_CACHE="${2-}"
+      shift
+      ;;
     --human) HUMAN=1 ;;
     --no-human) HUMAN=0 ;;
     -a | --add)
@@ -73,13 +80,15 @@ parse-params() {
 parse-params "$@"
 setup-colors
 
-CLI_CACHE_DIR=$HOME/.aws/cli/cache
-if [ ! -d "$CLI_CACHE_DIR" ]; then
-  echo -1
-  exit
-fi
+if [ -z "$CLI_CACHE" ]; then
+  CLI_CACHE_DIR=$HOME/.aws/cli/cache
+  if [ ! -d "$CLI_CACHE_DIR" ]; then
+    echo -1
+    exit
+  fi
 
-CLI_CACHE=$(find "$CLI_CACHE_DIR" -type f | head -1)
+  CLI_CACHE=$(gfind "$CLI_CACHE_DIR" -type f -printf '%T@ %p\n' | sort | cut -d ' ' -f 2- | tail -1)
+fi
 
 MINUTES_F=$(jq -r "((.Credentials.Expiration | fromdate) - now)/60" "$CLI_CACHE")
 MINUTES_F=$(echo "$MINUTES_F + $ADD_MINUTES" | bc | awk '{printf "%f", $0}')
