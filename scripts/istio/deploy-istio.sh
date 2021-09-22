@@ -44,56 +44,12 @@ if [[ ${UPDATE_CA_CERT:-} != "false" ]]; then
     kubectl apply -f -
 fi
 
-BASE_CHART="$RELEASE_PATH/manifests/charts/base"
-BASE_NAME=istio-base
-if [ -d "$BASE_CHART" ]; then
-  VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" |
-    awk '{ print $2 }')
-  MINOR_VER=$(echo "$VER" | cut -d \. -f "1-2")
-  if [[ $VER =~ .*-am.* ]]; then
-    AM_RELEASE=true
-  fi
-  case $MINOR_VER in
-    1.6)
-      CRD_COUNT=36
-      ;;
-    1.9)
-      if [ ${AM_RELEASE:-} == "true" ]; then
-        CRD_COUNT=23
-      else
-        CRD_COUNT=12
-      fi
-      ;;
-    1.11)
-      if [ ${AM_RELEASE:-} == "true" ]; then
-        echo "Unknown 1.11 release"
-        exit 1
-      else
-        CRD_COUNT=13
-      fi
-      ;;
-    *)
-      echo "Unknown minor version"
-      exit 1
-      ;;
-  esac
-else
-  MINOR_VER=1.5
-  BASE_CHART="$RELEASE_PATH/install/kubernetes/helm/istio-init"
-  BASE_NAME=istio-init
-  CRD_COUNT=31
-fi
-
-AM_VALUES="$RELEASE_PATH/install/kubernetes/helm/istio/values-aspenmesh.yaml"
-if [[ -f $AM_VALUES ]]; then
-  VALUES_OPTS=("--values=$AM_VALUES")
+GLOBAL_VALUES="$RELEASE_PATH/manifests/charts/global.yaml"
+if [[ -f "$GLOBAL_VALUES" ]]; then
+  VALUES_OPTS=("--values=$GLOBAL_VALUES")
 fi
 VALUES_OPTS+=("--values=$OVERRIDES")
 
-if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
-  VALUES_OPTS+=("--set=global.hub=quay.io/aspenmesh/releases-pr")
-  VALUES_OPTS+=("--set=global.publicImagesHub=quay.io/aspenmesh/am-istio-pr")
-fi
 if (( $(kubectl get ns | grep -c openshift) > 0 )); then
   OPENSHIFT=true
   VALUES_OPTS+=("--values=$DIR/overrides/cni.yaml")
@@ -101,6 +57,7 @@ else
   OPENSHIFT=false
 fi
 
+BASE_CHART="$RELEASE_PATH/manifests/charts/base"
 SKIP_CRDS=()
 if [ -d "$BASE_CHART/crds" ]; then
   kubectl apply -f "$BASE_CHART/crds"
@@ -112,21 +69,92 @@ if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
   VALIDATION="--set=global.configValidation=false"
 fi
 
-helm upgrade $BASE_NAME "$BASE_CHART" \
+helm upgrade istio-base "$BASE_CHART" \
   --install $VALIDATION \
   --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
+HUB_AND_TAG=false
+VER=$(grep -e "^version:" "$BASE_CHART/Chart.yaml" | awk '{ print $2 }')
+if [[ $VER == "1.1.0" ]]; then
+  # Several Istio releases have an inaccurate chart version; use the
+  # Istio-only manifest.yaml instead
+  VER=$(grep -e "^version:" "$RELEASE_PATH/manifest.yaml" | awk '{ print $2 }')
+fi
+MINOR_VER=$(echo "$VER" | cut -d \. -f "1-2")
+if [[ $VER =~ .*-am.* ]]; then
+  AM_RELEASE=true
+fi
+case $MINOR_VER in
+  1.6)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      CRD_COUNT=36
+    else
+      CRD_COUNT=25
+      HUB_AND_TAG=true
+    fi
+    ;;
+  1.7)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      echo "Unknown Aspen Mesh 1.7 release"
+      exit 1
+    else
+      CRD_COUNT=21
+      HUB_AND_TAG=true
+    fi
+    ;;
+  1.8)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      echo "Unknown Aspen Mesh 1.8 release"
+      exit 1
+    else
+      CRD_COUNT=12
+      HUB_AND_TAG=true
+    fi
+    ;;
+  1.9)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      CRD_COUNT=23
+    else
+      CRD_COUNT=12
+    fi
+    ;;
+  1.10)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      echo "Unknown Aspen Mesh 1.10 release"
+      exit 1
+    else
+      CRD_COUNT=13
+    fi
+    ;;
+  1.11)
+    if [ ${AM_RELEASE:-} == "true" ]; then
+      echo "Unknown Aspen Mesh 1.11 release"
+      exit 1
+    else
+      CRD_COUNT=13
+    fi
+    ;;
+  *)
+    echo "Unknown minor version"
+    exit 1
+    ;;
+esac
+
+if [[ $HUB_AND_TAG == true ]]; then
+  VALUES_OPTS+=("--set=global.hub=docker.io/istio")
+  VALUES_OPTS+=("--set=global.tag=$VER")
+else
+  if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
+    VALUES_OPTS+=("--set=global.hub=quay.io/aspenmesh/releases-pr")
+    VALUES_OPTS+=("--set=global.publicImagesHub=quay.io/aspenmesh/am-istio-pr")
+  fi
+fi
+
 if [[ $OPENSHIFT == "true" ]]; then
-  CNI_CHART="$RELEASE_PATH/manifests/charts/istio-cni"
-  if [[ $MINOR_VER == "1.5" ]]; then
-    CNI_CHART="$RELEASE_PATH/install/kubernetes/helm/istio-cni"
-  fi
-  if [[ -d "$CNI_CHART" ]]; then
-    helm upgrade istio-cni "$CNI_CHART" \
-      --install \
-      --namespace=kube-system \
-      --set components.cni.enabled=true "${VALUES_OPTS[@]}" "$@"
-  fi
+  helm upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
+    --install \
+    --namespace=kube-system \
+    --set components.cni.enabled=true "${VALUES_OPTS[@]}" "$@"
 fi
 
 if [[ ${PULLSECRET:-} != "" ]]; then
@@ -136,33 +164,31 @@ fi
 while true; do
   COUNT=$(kubectl get crds |
     grep -c 'istio.io\|cert-manager.io\|aspenmesh.io') || true
-  if (( COUNT >= CRD_COUNT )); then
+  if (( COUNT > CRD_COUNT )); then
+    echo "Expected only $CRD_COUNT CRDs, got too many ($COUNT)"
+    exit 1
+  fi
+  if [[ "$COUNT" == "$CRD_COUNT" ]]; then
     break
   fi
   sleep 5
 done
 
-if [ $MINOR_VER == "1.5" ]; then
-  helm upgrade istio "$RELEASE_PATH/install/kubernetes/helm/istio" \
-    --install \
-    --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
-else
-  helm upgrade istiod \
-    "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
-    --install \
-    --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+helm upgrade istiod \
+  "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
+  --install \
+  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
 
-  if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
-    helm upgrade $BASE_NAME "$BASE_CHART" \
-      --set=global.configValidation=true \
-      --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
-  fi
-
-  helm upgrade istio-ingress \
-    "$RELEASE_PATH/manifests/charts/gateways/istio-ingress" \
-    --install \
+if [[ ${IN_PLACE_UPGRADE_1_9:-} == "true" ]]; then
+  helm upgrade istio-base "$BASE_CHART" \
+    --set=global.configValidation=true \
     --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
 fi
+
+helm upgrade istio-ingress \
+  "$RELEASE_PATH/manifests/charts/gateways/istio-ingress" \
+  --install \
+  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
 
 kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | while read -r NS _; do
   kubectl get deployment --namespace "$NS" -o name | while read -r DEPLOYMENT; do
@@ -183,9 +209,6 @@ done
 echo "$LOAD_BALANCER" > load-balancer.value
 
 ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/analysis-emulator"
-if [[ $MINOR_VER == "1.5" ]]; then
-  ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/gcb-emulator"
-fi
 if [ -d "$ANALYSIS_CHART" ]; then
   kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
   helm upgrade analysis-emulator "$ANALYSIS_CHART" \

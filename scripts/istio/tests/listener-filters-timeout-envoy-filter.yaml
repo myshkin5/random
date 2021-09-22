@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: mysql
+  namespace: mysql-server-sidecar-permissive
+spec:
+  workloadSelector:
+    labels:
+      app: mysql
+  configPatches:
+  - applyTo: LISTENER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        portNumber: 15006
+    patch:
+      operation: MERGE
+      value:
+        listener_filters_timeout: 1s
