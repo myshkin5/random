@@ -21,4 +21,6 @@ EOF
 
 systemctl enable gunicorn.service
 
+hostnamectl set-hostname external-vm
+
 reboot

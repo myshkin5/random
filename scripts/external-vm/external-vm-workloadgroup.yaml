@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadGroup
 metadata:
   name: external-vm
-  namespace: external-vm
+  namespace: external
 spec:
   metadata:
     labels:
@@ -10,3 +10,9 @@ spec:
   template:
     serviceAccount: external-vm
     network: ""
+  probe:
+    periodSeconds: 5
+    initialDelaySeconds: 1
+    httpGet:
+      port: 80
+      path: /get

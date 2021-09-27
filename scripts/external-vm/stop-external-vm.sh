@@ -4,6 +4,7 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+kubectl delete -f "$DIR/external-vm-workloadgroup.yaml" || true
 kubectl delete -f "$DIR/external-vm.yaml" || true
 
 while true; do
