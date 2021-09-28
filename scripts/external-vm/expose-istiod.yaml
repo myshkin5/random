@@ -9,7 +9,7 @@ spec:
   - port:
       name: tls-istiod
       number: 15012
-      protocol: tls
+      protocol: TLS
     tls:
       mode: PASSTHROUGH
     hosts:
@@ -17,7 +17,7 @@ spec:
   - port:
       name: tls-istiodwebhook
       number: 15017
-      protocol: tls
+      protocol: TLS
     tls:
       mode: PASSTHROUGH
     hosts:
@@ -25,11 +25,11 @@ spec:
   - port:
       name: tls
       number: 15443
-      protocol: tls
+      protocol: TLS
     tls:
       mode: AUTO_PASSTHROUGH
     hosts:
-    - '*'
+    - "*.local"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

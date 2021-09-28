@@ -14,19 +14,24 @@ SG_ID=$(aws ec2 create-security-group \
   --vpc-id "$(cat vpc-id.value)" | jq -r '.GroupId')
 echo "$SG_ID" > external-vm-sg.value
 
+function add-ingress() {
+  PORT=$1
+  CIDR=$2
+  aws ec2 authorize-security-group-ingress \
+    --group-id "$SG_ID" \
+    --protocol tcp \
+    --port "$PORT" \
+    --cidr "$CIDR" | jq
+}
+
 MY_IP=$(curl -s https://api.ipify.org)
+add-ingress 22 "$MY_IP/32"         # ssh to sshd
 
-aws ec2 authorize-security-group-ingress \
-  --group-id "$SG_ID" \
-  --protocol tcp \
-  --port 22 \
-  --cidr "$MY_IP/32" | jq
-
-aws ec2 authorize-security-group-ingress \
-  --group-id "$SG_ID" \
-  --protocol tcp \
-  --port 80 \
-  --cidr "0.0.0.0/0" | jq
+add-ingress 80 "0.0.0.0/0"         # HTTP to httpbin
+add-ingress 15001 "192.168.0.0/16" # Envoy outbound
+add-ingress 15006 "192.168.0.0/16" # Envoy inbound
+add-ingress 15021 "192.168.0.0/16" # Health checks
+add-ingress 15090 "192.168.0.0/16" # Envoy Prometheus telemetry
 
 RUN_OUT=$(aws ec2 run-instances \
   --image-id "$IMAGE_ID" \

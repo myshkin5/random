@@ -29,7 +29,7 @@ dpkg -i istio-sidecar.deb
 cp cluster.env /var/lib/istio/envoy/cluster.env
 
 # For additional debug logs
-echo "ISTIO_AGENT_FLAGS=\"--log_output_level=dns:debug --proxyLogLevel=debug\"" >> /var/lib/istio/envoy/cluster.env
+#echo "ISTIO_AGENT_FLAGS=\"--log_output_level=dns:debug --proxyLogLevel=debug\"" >> /var/lib/istio/envoy/cluster.env
 
 cp mesh.yaml /etc/istio/config/mesh
 
