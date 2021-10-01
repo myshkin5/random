@@ -4,28 +4,13 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-if [[ ${RELEASE_PATH:-} == "" ]]; then
-  echo "RELEASE_PATH is undefined"
-  exit 1
-fi
+export OVERRIDES="$DIR/overrides/east-west-gw-default.yaml"
+source "$DIR/../istio/version-support.sh"
 
-if [ ! -d "$RELEASE_PATH" ]; then
-  echo "RELEASE_PATH ($RELEASE_PATH) is not found"
-  exit 1
-fi
-
-if [[ ${OVERRIDES:-} == "" ]]; then
-  OVERRIDES="$DIR/overrides/east-west-gw-default.yaml"
-  echo "Defaulting overrides to $OVERRIDES"
-fi
-
-VALUES_OPTS=("--values=$OVERRIDES")
-if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
-  VALUES_OPTS+=("--set=global.hub=quay.io/aspenmesh/releases-pr")
-  VALUES_OPTS+=("--set=global.publicImagesHub=quay.io/aspenmesh/am-istio-pr")
-fi
-if (( $(kubectl get ns | grep -c openshift) > 0 )); then
-  VALUES_OPTS+=("--values=$DIR/../istio/overrides/cni.yaml")
+if [[ $ISTIO_MINOR_VERSION == "1.9" ]]; then
+  # Gateway auto-injection (https://istio.io/latest/docs/setup/additional-setup/gateway/)
+  # doesn't work in 1.9
+  VALUES_OPTS+=("--set gateways.istio-ingressgateway.injectionTemplate=\"\"")
 fi
 
 helm upgrade istio-east-west-ingress \

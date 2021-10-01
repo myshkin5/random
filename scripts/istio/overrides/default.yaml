@@ -26,9 +26,12 @@ global:
       address: aspen-mesh-jaeger-collector.istio-system:9411
   enableEccCertificates: true
 
-#meshConfig:
+meshConfig:
+#  protocolDetectionTimeout: 1s
 #  pathNormalization:
 #    normalization: DECODE_AND_MERGE_SLASHES
+  defaultConfig:
+    proxyMetadata: {}
 
 citadel:
   enabled: true
