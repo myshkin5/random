@@ -13,8 +13,9 @@ gateways:
       port: 15443
       protocol: TCP
       targetPort: 15443
-    - name: tls-istiod
+    - name: tcp-istiod
       port: 15012
+      protocol: TCP
       targetPort: 15012
     - name: tls-webhook
       port: 15017

@@ -9,13 +9,15 @@ if [ $# != 1 ]; then
 fi
 PATCH_VER=$1
 
+hostnamectl set-hostname "external-vm-$INST_ITER"
+
 ISTIOCTL_TGZ=istioctl-$PATCH_VER-linux-amd64.tar.gz
 curl -L -O "https://storage.googleapis.com/istio-release/releases/$PATCH_VER/$ISTIOCTL_TGZ"
 tar xfz "$ISTIOCTL_TGZ"
 mv istioctl /usr/local/bin
 rm "$ISTIOCTL_TGZ"
 
-cd external-vm-cert
+cd "external-vm-cert-$INST_ITER"
 
 mkdir -p /etc/certs
 cp root-cert.pem /etc/certs

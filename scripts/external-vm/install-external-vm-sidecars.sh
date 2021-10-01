@@ -4,6 +4,10 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+source "$DIR/../istio/version-support.sh"
+
+INSTANCE_COUNT=${INSTANCE_COUNT:=1}
+
 if [[ ${RELEASE_PATH:-} == "" ]]; then
   echo "RELEASE_PATH is undefined"
   exit 1
@@ -15,36 +19,34 @@ if [ ! -d "$RELEASE_PATH" ]; then
 fi
 
 kubectl apply -f "$DIR/external-vm.yaml"
-kubectl apply -f "$DIR/external-vm-workloadgroup.yaml"
-
-rm -rf external-vm-cert
-mkdir -p external-vm-cert
 
 ISTIOD_IP=$(dig +short "$(cat east-west-load-balancer.value)" | head -1)
 
-"$RELEASE_PATH/bin/istioctl" x workload entry configure \
-  -f "$DIR/external-vm-workloadgroup.yaml" \
-  -o external-vm-cert \
-  --clusterID Kubernetes \
-  --autoregister \
-  --ingressIP "$ISTIOD_IP"
+for (( INST_ITER=0; INST_ITER<INSTANCE_COUNT; INST_ITER++ )); do
+  export INST_ITER
+  envsubst \$INST_ITER < "$DIR/external-vm-workloadgroup.yaml" > "external-vm-workloadgroup-$INST_ITER.yaml"
+  kubectl apply -f "external-vm-workloadgroup-$INST_ITER.yaml"
 
-cp "$DIR/external-vm-sidecar.sh" external-vm-cert
-tar cfz external-vm-cert.tgz external-vm-cert
+  CERT=external-vm-cert-$INST_ITER
+  rm -rf "$CERT"
+  mkdir -p "$CERT"
 
-scp -i "$HOME/.ssh/id_ed25519_aws_dev" external-vm-cert.tgz \
-  "ubuntu@$(cat external-vm-public-ip.value):"
+  "$RELEASE_PATH/bin/istioctl" x workload entry configure \
+    -f "external-vm-workloadgroup-$INST_ITER.yaml" \
+    -o "$CERT" \
+    --clusterID Kubernetes \
+    --autoregister \
+    --ingressIP "$ISTIOD_IP"
 
-ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$(cat external-vm-public-ip.value)" \
-  -t "tar xfz external-vm-cert.tgz"
+  envsubst \$INST_ITER < "$DIR/external-vm-sidecar.sh" > "$CERT/external-vm-sidecar.sh"
+  chmod +x "$CERT/external-vm-sidecar.sh"
+  tar cfz "$CERT.tgz" "$CERT"
 
-VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" | awk '{ print $2 }')
-if [[ $VER == "1.1.0" ]]; then
-  # Several Istio releases have an inaccurate chart version; use the
-  # Istio-only manifest.yaml instead
-  VER=$(grep -e "^version:" "$RELEASE_PATH/manifest.yaml" | awk '{ print $2 }')
-fi
-PATCH_VER=$(echo "$VER" | cut -d \. -f "1-3")
+  PUBLIC_IP=$(cat external-vm-public-ip-$INST_ITER.value)
+  scp -i "$HOME/.ssh/id_ed25519_aws_dev" "$CERT.tgz" "ubuntu@$PUBLIC_IP:"
 
-ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$(cat external-vm-public-ip.value)" \
-  -t "sudo ./external-vm-cert/external-vm-sidecar.sh $PATCH_VER"
+  ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$PUBLIC_IP" -t "tar xfz $CERT.tgz"
+
+  ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$PUBLIC_IP" \
+    -t "sudo ./external-vm-cert-$INST_ITER/external-vm-sidecar.sh $ISTIO_PATCH_VERSION"
+done

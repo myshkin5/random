@@ -16,13 +16,13 @@ metadata:
   namespace: external
 spec:
   hosts:
-  - external-vm.dwayne-eks-dev.dev.twistio.io
+  - external-vm.external.com
   location: MESH_INTERNAL
   ports:
   - number: 80
     name: http
     protocol: HTTP
-  resolution: DNS
+  resolution: STATIC
   workloadSelector:
     labels:
       app: external-vm

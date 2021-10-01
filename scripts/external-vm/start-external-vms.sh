@@ -6,6 +6,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 IMAGE_ID=${IMAGE_ID:=ami-03d5c68bab01f3496}
 INSTANCE_TYPE=${INSTANCE_TYPE:=t3a.large}
+INSTANCE_COUNT=${INSTANCE_COUNT:=1}
 KEY_PAIR=${KEY_PAIR:=dwayne-ed25519-key-pair}
 
 SG_ID=$(aws ec2 create-security-group \
@@ -35,22 +36,13 @@ add-ingress 15090 "192.168.0.0/16" # Envoy Prometheus telemetry
 
 RUN_OUT=$(aws ec2 run-instances \
   --image-id "$IMAGE_ID" \
-  --count 1 \
+  --count "$INSTANCE_COUNT" \
   --instance-type "$INSTANCE_TYPE" \
   --key-name "$KEY_PAIR" \
   --subnet-id "$(cat public-subnet-id.value)" \
   --security-group-ids "$SG_ID" \
   --user-data "file://$DIR/external-vm-startup.sh")
 echo "$RUN_OUT"
-echo "$RUN_OUT" | jq -r '.Instances[0].InstanceId' > external-vm-id.value
-PRIVATE_IP=$(echo "$RUN_OUT" | jq -r '.Instances[0].PrivateIpAddress')
-echo "$PRIVATE_IP" > external-vm-private-ip.value
-
-aws ec2 wait instance-running --instance-ids "$(cat external-vm-id.value)" | jq
-PUBLIC_IP=$(aws ec2 describe-instances \
-  --filters "Name=instance-id,Values=$(cat external-vm-id.value)" | \
-  jq -r ".Reservations[0].Instances[0].PublicIpAddress")
-echo "$PUBLIC_IP" > external-vm-public-ip.value
 
 while true; do
   DEV_ZONE=$(aws route53 list-hosted-zones-by-name --dns-name dev.twistio.io. | \
@@ -58,32 +50,48 @@ while true; do
     cut -d/ -f 3) && break
 done
 
-aws route53 change-resource-record-sets \
-  --hosted-zone-id "$DEV_ZONE" \
-  --change-batch '{
-    "Comment": "Creating a record set for the external VM",
-    "Changes": [
-      {
-        "Action": "CREATE",
-        "ResourceRecordSet": {
-          "Name": "external-vm.'"$NAME"'.dev.twistio.io",
-          "Type": "A",
-          "TTL": 300,
-          "ResourceRecords": [
-            { "Value": "'"$PRIVATE_IP"'" }
-          ]
+INST_ITER=0
+for INSTANCE in $(echo "$RUN_OUT" | jq -c '.Instances[]'); do
+  INST_ID=$(echo "$INSTANCE" | jq -r '.InstanceId')
+  echo "$INST_ID" > external-vm-id-$INST_ITER.value
+  PRIVATE_IP=$(echo "$INSTANCE" | jq -r '.PrivateIpAddress')
+  echo "$PRIVATE_IP" > external-vm-private-ip-$INST_ITER.value
+
+  aws ec2 wait instance-running --instance-ids "$INST_ID" | jq
+  PUBLIC_IP=$(aws ec2 describe-instances \
+    --filters "Name=instance-id,Values=$INST_ID" | \
+    jq -r ".Reservations[0].Instances[0].PublicIpAddress")
+  echo "$PUBLIC_IP" > external-vm-public-ip-$INST_ITER.value
+
+  aws route53 change-resource-record-sets \
+    --hosted-zone-id "$DEV_ZONE" \
+    --change-batch '{
+      "Comment": "Creating a record set for the external VM",
+      "Changes": [
+        {
+          "Action": "CREATE",
+          "ResourceRecordSet": {
+            "Name": "external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
+            "Type": "A",
+            "TTL": 300,
+            "ResourceRecords": [
+              { "Value": "'"$PRIVATE_IP"'" }
+            ]
+          }
+        },
+        {
+          "Action": "CREATE",
+          "ResourceRecordSet": {
+            "Name": "pub-external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
+            "Type": "A",
+            "TTL": 300,
+            "ResourceRecords": [
+              { "Value": "'"$PUBLIC_IP"'" }
+            ]
+          }
         }
-      },
-      {
-        "Action": "CREATE",
-        "ResourceRecordSet": {
-          "Name": "pub-external-vm.'"$NAME"'.dev.twistio.io",
-          "Type": "A",
-          "TTL": 300,
-          "ResourceRecords": [
-            { "Value": "'"$PUBLIC_IP"'" }
-          ]
-        }
-      }
-    ]
-  }' | jq
+      ]
+    }' | jq
+
+    (( INST_ITER++ ))
+done
