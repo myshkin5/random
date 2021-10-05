@@ -63,35 +63,40 @@ for INSTANCE in $(echo "$RUN_OUT" | jq -c '.Instances[]'); do
     jq -r ".Reservations[0].Instances[0].PublicIpAddress")
   echo "$PUBLIC_IP" > external-vm-public-ip-$INST_ITER.value
 
-  aws route53 change-resource-record-sets \
-    --hosted-zone-id "$DEV_ZONE" \
-    --change-batch '{
-      "Comment": "Creating a record set for the external VM",
-      "Changes": [
-        {
-          "Action": "CREATE",
-          "ResourceRecordSet": {
-            "Name": "external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
-            "Type": "A",
-            "TTL": 300,
-            "ResourceRecords": [
-              { "Value": "'"$PRIVATE_IP"'" }
-            ]
+  while true; do
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id "$DEV_ZONE" \
+      --change-batch '{
+        "Comment": "Creating a record set for the external VM",
+        "Changes": [
+          {
+            "Action": "CREATE",
+            "ResourceRecordSet": {
+              "Name": "external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
+              "Type": "A",
+              "TTL": 300,
+              "ResourceRecords": [
+                { "Value": "'"$PRIVATE_IP"'" }
+              ]
+            }
+          },
+          {
+            "Action": "CREATE",
+            "ResourceRecordSet": {
+              "Name": "pub-external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
+              "Type": "A",
+              "TTL": 300,
+              "ResourceRecords": [
+                { "Value": "'"$PUBLIC_IP"'" }
+              ]
+            }
           }
-        },
-        {
-          "Action": "CREATE",
-          "ResourceRecordSet": {
-            "Name": "pub-external-vm-'"$INST_ITER"'.'"$NAME"'.dev.twistio.io",
-            "Type": "A",
-            "TTL": 300,
-            "ResourceRecords": [
-              { "Value": "'"$PUBLIC_IP"'" }
-            ]
-          }
-        }
-      ]
-    }' | jq
+        ]
+      }' \
+      --no-cli-pager && break
+
+      sleep 10
+    done
 
     (( INST_ITER++ ))
 done

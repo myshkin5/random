@@ -8,16 +8,6 @@ source "$DIR/../istio/version-support.sh"
 
 INSTANCE_COUNT=${INSTANCE_COUNT:=1}
 
-if [[ ${RELEASE_PATH:-} == "" ]]; then
-  echo "RELEASE_PATH is undefined"
-  exit 1
-fi
-
-if [ ! -d "$RELEASE_PATH" ]; then
-  echo "RELEASE_PATH ($RELEASE_PATH) is not found"
-  exit 1
-fi
-
 kubectl apply -f "$DIR/external-vm.yaml"
 kubectl apply -f "$DIR/external-vm-workloadgroup.yaml"
 
