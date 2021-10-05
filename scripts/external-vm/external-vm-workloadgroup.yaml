@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadGroup
 metadata:
-  name: external-vm-$INST_ITER
+  name: external-vm
   namespace: external
 spec:
   metadata:

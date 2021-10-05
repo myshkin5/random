@@ -19,20 +19,18 @@ if [ ! -d "$RELEASE_PATH" ]; then
 fi
 
 kubectl apply -f "$DIR/external-vm.yaml"
+kubectl apply -f "$DIR/external-vm-workloadgroup.yaml"
 
 ISTIOD_IP=$(dig +short "$(cat east-west-load-balancer.value)" | head -1)
 
 for (( INST_ITER=0; INST_ITER<INSTANCE_COUNT; INST_ITER++ )); do
   export INST_ITER
-  envsubst \$INST_ITER < "$DIR/external-vm-workloadgroup.yaml" > "external-vm-workloadgroup-$INST_ITER.yaml"
-  kubectl apply -f "external-vm-workloadgroup-$INST_ITER.yaml"
-
   CERT=external-vm-cert-$INST_ITER
   rm -rf "$CERT"
   mkdir -p "$CERT"
 
   "$RELEASE_PATH/bin/istioctl" x workload entry configure \
-    -f "external-vm-workloadgroup-$INST_ITER.yaml" \
+    -f "$DIR/external-vm-workloadgroup.yaml" \
     -o "$CERT" \
     --clusterID Kubernetes \
     --autoregister \
