@@ -49,10 +49,14 @@ helm upgrade istio-base "$BASE_CHART" \
   --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
 if [[ $OPENSHIFT == "true" ]]; then
+  CNI_VALUES_OPTS=$VALUES_OPTS
+  if [[ $AM_RELEASE == "false" ]]; then
+    CNI_VALUES_OPTS+=("--values=$DIR/overrides/open-source-cni-values.yaml")
+  fi
   helm upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
     --install \
     --namespace=kube-system \
-    --set components.cni.enabled=true "${VALUES_OPTS[@]}" "$@"
+    --set components.cni.enabled=true "${CNI_VALUES_OPTS[@]}" "$@"
 fi
 
 if [[ ${PULLSECRET:-} != "" ]]; then

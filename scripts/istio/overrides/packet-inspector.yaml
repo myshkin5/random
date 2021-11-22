@@ -72,3 +72,8 @@ aspen-mesh-event-storage:
   resources:
     requests: null
     limits: null
+
+analysis:
+  # mode is either `normal` or `benchmark`. `benchmark` does not write capture
+  # files and tracks unique requests
+  mode: benchmark

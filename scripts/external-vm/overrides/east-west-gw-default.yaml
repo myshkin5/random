@@ -33,7 +33,7 @@ gateways:
 global:
   proxy:
     logLevel: info
-    accessLogFile: "/dev/null"
+    accessLogFile: "/dev/stdout"
   imagePullSecrets:
   - aspen-mesh-pull-secret
   - aspenmesh-istio-private-pr-pull-secret

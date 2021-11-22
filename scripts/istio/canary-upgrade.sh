@@ -4,20 +4,8 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-if [[ $RELEASE_PATH == "" ]]; then
-  echo "RELEASE_PATH is undefined"
-  exit 1
-fi
-
-if [ ! -d "$RELEASE_PATH" ]; then
-  echo "RELEASE_PATH ($RELEASE_PATH) is not found"
-  exit 1
-fi
-
-if [[ $OVERRIDES == "" ]]; then
-  OVERRIDES="$DIR/overrides/default.yaml"
-  echo "Defaulting overrides to $OVERRIDES"
-fi
+export DEFAULT_OVERRIDES="$DIR/overrides/default.yaml"
+source "$DIR/version-support.sh"
 
 TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
 touch "$TMP_FILE"
@@ -28,39 +16,6 @@ kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yam
 
 BASE_CHART="$RELEASE_PATH/manifests/charts/base"
 BASE_NAME=istio-base
-
-VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" | \
-  awk '{ print $2 }')
-MINOR_VER=${VER:0:3}
-if [[ $VER =~ .*-am.* ]]; then
-  AM_RELEASE=true
-fi
-case $MINOR_VER in
-  1.9)
-    if [ $AM_RELEASE == "true" ]; then
-      CRD_COUNT=23
-    else
-      CRD_COUNT=12
-    fi
-    ;;
-  *)
-    echo "Unknown minor version"
-    exit 1
-    ;;
-esac
-
-VALUES_OPTS+=("--values=$OVERRIDES")
-
-if [[ "$RELEASE_PATH" =~ -(PR|pr) ]]; then
-  VALUES_OPTS+=("--set=global.hub=quay.io/aspenmesh/releases-pr")
-  VALUES_OPTS+=("--set=global.publicImagesHub=quay.io/aspenmesh/am-istio-pr")
-fi
-if (( $(kubectl get ns | grep -c openshift) > 0 )); then
-  OPENSHIFT=true
-  VALUES_OPTS+=("--values=$DIR/cni-overrides.yaml")
-else
-  OPENSHIFT=false
-fi
 
 kubectl get pods --namespace istio-system | wc -l
 

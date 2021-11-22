@@ -14,7 +14,7 @@ external-dns:
 global:
   proxy:
     logLevel: info
-    accessLogFile: "/dev/null"
+    accessLogFile: "/dev/stdout"
   imagePullSecrets:
   - aspen-mesh-pull-secret
   - aspenmesh-istio-private-pr-pull-secret
@@ -53,6 +53,8 @@ jaeger:
 
 pilot:
   traceSampling: "1.0"
+  enableProtocolSniffingForInbound: false
+  enableProtocolSniffingForOutbound: false
 
 aspen-mesh-event-storage:
   resources:

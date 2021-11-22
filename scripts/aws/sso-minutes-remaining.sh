@@ -4,7 +4,9 @@ set -euEo pipefail
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--[no-]human] [-a minutes] [-r minutes] [-c cache-file-path]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--[no-]human]
+                                [-a minutes] [-r minutes] [-w minutes]
+                                [-c cache-file-path]
 
 Displays minutes remaining for an SSO session.
 
@@ -18,6 +20,8 @@ Available options:
     --no-human      Output floating point minutes (default)
 -a, --add           Add specified minutes (default: 0)
 -r, --red-threshold Displays red output when threshold is crossed (default: 0)
+-w, --watch         Watch the SSO session indefinitely with a sleep for the
+                    specified minutes (default: don't watch)
 EOF
   exit
 }
@@ -47,6 +51,7 @@ parse-params() {
   HUMAN=0
   ADD_MINUTES=0
   RED_THRESHOLD=0
+  WATCH_MINUTES=0
   CLI_CACHE=""
 
   while true; do
@@ -66,6 +71,10 @@ parse-params() {
       ;;
     -r | --red-threshold)
       RED_THRESHOLD="${2-}"
+      shift
+      ;;
+    -w | --watch)
+      WATCH_MINUTES="${2-}"
       shift
       ;;
     -?*) die "Unknown option: $1" ;;
@@ -90,19 +99,31 @@ if [ -z "$CLI_CACHE" ]; then
   CLI_CACHE=$(gfind "$CLI_CACHE_DIR" -type f -printf '%T@ %p\n' | sort | cut -d ' ' -f 2- | tail -1)
 fi
 
-MINUTES_F=$(jq -r "((.Credentials.Expiration | fromdate) - now)/60" "$CLI_CACHE")
-MINUTES_F=$(echo "$MINUTES_F + $ADD_MINUTES" | bc | awk '{printf "%f", $0}')
-PRE=""
-if (( $(echo "$MINUTES_F < $RED_THRESHOLD" | bc -l) )); then
-  PRE=$RED
-fi
+function check() {
+  MINUTES_F=$(jq -r "((.Credentials.Expiration | fromdate) - now)/60" "$CLI_CACHE")
+  MINUTES_F=$(echo "$MINUTES_F + $ADD_MINUTES" | bc | awk '{printf "%f", $0}')
+  PRE=""
+  if (( $(echo "$MINUTES_F < $RED_THRESHOLD" | bc -l) )); then
+    PRE=$RED
+  fi
 
-if [ "$HUMAN" == 1 ]; then
-  MINUTES_I=${MINUTES_F%.*}
-  SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
-  SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
-  SECONDS_I=${SECONDS_I#-}
-  printf "$PRE%.0f:%02.0f$NORMAL\n" "$MINUTES_I" "$SECONDS_I"
+  if [ "$HUMAN" == 1 ]; then
+    MINUTES_I=${MINUTES_F%.*}
+    SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
+    SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
+    SECONDS_I=${SECONDS_I#-}
+    printf "$PRE%.0f:%02.0f$NORMAL\n" "$MINUTES_I" "$SECONDS_I"
+  else
+    echo -e "$PRE$MINUTES_F$NORMAL"
+  fi
+}
+
+if [[ "$WATCH_MINUTES" == "0" ]]; then
+  check
 else
-  echo -e "$PRE$MINUTES_F$NORMAL"
+  (( SECS=WATCH_MINUTES*60 ))
+  while true; do
+    echo "$(date) $(check)"
+    sleep "$SECS"
+  done
 fi

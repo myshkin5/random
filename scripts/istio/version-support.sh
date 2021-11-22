@@ -42,9 +42,9 @@ fi
 ISTIO_MINOR_VERSION=$(echo "$VER" | cut -d \. -f "1-2")
 ISTIO_PATCH_VERSION=$(echo "$VER" | cut -d \. -f "1-3")
 export ISTIO_MINOR_VERSION ISTIO_PATCH_VERSION
-AM_RELEASE=false
+export AM_RELEASE=false
 if [[ $VER =~ .*-am.* ]]; then
-  AM_RELEASE=true
+  export AM_RELEASE=true
 fi
 case $ISTIO_MINOR_VERSION in
   1.6)
