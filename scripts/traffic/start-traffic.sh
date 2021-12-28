@@ -12,9 +12,9 @@ if (( $(kubectl get ns | grep -c openshift) > 0 )); then
   kubectl apply -f "$DIR/../istio/net-attach-def.yaml" \
     --namespace traffic-client
 fi
-kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace traffic-server
-kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace traffic-client
 
 POD=""

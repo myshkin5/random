@@ -11,7 +11,7 @@ TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
 touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
-kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace istio-system
 
 BASE_CHART="$RELEASE_PATH/manifests/charts/base"
@@ -130,7 +130,7 @@ fi
 
 if [[ ${CHECK_READY:-} != "false" ]]; then
   kubectl apply -f "$DIR/ready.yaml"
-  kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+  kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
     --namespace istio-ready
   if [[ $OPENSHIFT == "true" ]]; then
     kubectl apply -f "$DIR/net-attach-def.yaml" \

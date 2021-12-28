@@ -13,6 +13,8 @@
     ```
 1. Edit `$HOME/.zshrc`
    1. Set `ZSH_THEME` to `dwayne`
-   1. Add `pyenv` and `Z` to `plugins` list
-   1. Comment out iterm integration (handled above)
-   1. Add `unsetopt share_history` to keep each shell with its own history
+   2. Add `(direnv git pyenv ssh-agent Z)` to `plugins` list
+
+      NOTE: DO NOT use `ssh-agent` on hosts that will be ssh'ed to (it overwrites forwarded keys)
+   3. Comment out iterm integration (handled above)
+   4. Add `unsetopt share_history` to keep each shell with its own history

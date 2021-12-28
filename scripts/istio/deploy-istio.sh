@@ -15,7 +15,7 @@ kubectl apply -f "$DIR/istio-ns.yaml"
 if [[ ${MULTICLUSTER_NETWORK:-} != "" ]]; then
   kubectl label namespace istio-system "topology.istio.io/network=${MULTICLUSTER_NETWORK}"
 fi
-kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace istio-system
 
 if [[ ${UPDATE_CA_CERT:-} != "false" ]]; then
@@ -49,7 +49,7 @@ helm upgrade istio-base "$BASE_CHART" \
   --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
 if [[ $OPENSHIFT == "true" ]]; then
-  CNI_VALUES_OPTS=$VALUES_OPTS
+  CNI_VALUES_OPTS=("${VALUES_OPTS[@]}")
   if [[ $AM_RELEASE == "false" ]]; then
     CNI_VALUES_OPTS+=("--values=$DIR/overrides/open-source-cni-values.yaml")
   fi
@@ -120,7 +120,7 @@ fi
 
 if [[ ${CHECK_READY:-} != "false" ]]; then
   kubectl apply -f "$DIR/ready.yaml"
-  kubectl apply -f ../private-resources/aspenmesh-istio-private-pr-pull-secret.yaml \
+  kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
     --namespace istio-ready
   if [[ $OPENSHIFT == "true" ]]; then
     kubectl apply -f "$DIR/net-attach-def.yaml" \

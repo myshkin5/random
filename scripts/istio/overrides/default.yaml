@@ -26,6 +26,9 @@ global:
       address: aspen-mesh-jaeger-collector.istio-system:9411
   enableEccCertificates: true
 
+#  logging:
+#    level: default:debug
+
 meshConfig:
 #  protocolDetectionTimeout: 1s
 #  pathNormalization:

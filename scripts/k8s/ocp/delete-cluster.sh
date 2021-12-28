@@ -2,6 +2,12 @@
 
 set -xEeuo pipefail
 
+SECRET=$(aws secretsmanager get-secret-value \
+  --secret-id openshift_passthrough_credentials | jq -r '.SecretString')
+AWS_ACCESS_KEY_ID=$(echo "$SECRET" | jq -r '.aws_access_key_id')
+AWS_SECRET_ACCESS_KEY=$(echo "$SECRET" | jq -r '.aws_secret_access_key')
+export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+
 openshift-install destroy cluster --dir=. --log-level=info || true
 
 aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$NAME*" | jq

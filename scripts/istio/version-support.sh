@@ -40,7 +40,7 @@ if [[ $VER == "1.1.0" ]]; then
   VER=$(grep -e "^version:" "$RELEASE_PATH/manifest.yaml" | awk '{ print $2 }')
 fi
 ISTIO_MINOR_VERSION=$(echo "$VER" | cut -d \. -f "1-2")
-ISTIO_PATCH_VERSION=$(echo "$VER" | cut -d \. -f "1-3")
+ISTIO_PATCH_VERSION=$(echo "$VER" | cut -d \. -f "1-3" | cut -d - -f 1)
 export ISTIO_MINOR_VERSION ISTIO_PATCH_VERSION
 export AM_RELEASE=false
 if [[ $VER =~ .*-am.* ]]; then
@@ -75,7 +75,11 @@ case $ISTIO_MINOR_VERSION in
     ;;
   1.9)
     if [ $AM_RELEASE == "true" ]; then
-      export CRD_COUNT=23
+      if [ "$ISTIO_PATCH_VERSION" == "1.9.9" ]; then
+        export CRD_COUNT=14
+      else
+        export CRD_COUNT=23
+      fi
     else
       export CRD_COUNT=12
       HUB_AND_TAG=true
