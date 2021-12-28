@@ -16,6 +16,6 @@
 	default = matching
 [user]
 	name = Dwayne Schultz
-	email = d.schultz@f5.com
+	email = myshkin5@users.noreply.github.com
 [url "git@github.com:"]
 	insteadOf = https://github.com/
