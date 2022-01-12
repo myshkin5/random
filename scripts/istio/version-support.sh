@@ -95,8 +95,7 @@ case $ISTIO_MINOR_VERSION in
     ;;
   1.11)
     if [ $AM_RELEASE == "true" ]; then
-      echo "Unknown Aspen Mesh 1.11 release"
-      exit 1
+      export CRD_COUNT=15
     else
       export CRD_COUNT=13
     fi
