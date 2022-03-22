@@ -17,6 +17,11 @@ if [ -z "$BUILD_USER" ]; then
   exit 1
 fi
 
+if [ -z "$BUILD_KIND_IP" ]; then
+  >&2 echo "BUILD_KIND_IP must be defined"
+  exit 1
+fi
+
 if [[ $PWD != $HOME/workspace/clusters/* ]]; then
   >&2 echo "Current working directory must be in clusters directory"
   exit 1
@@ -29,4 +34,10 @@ scp -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER:$REL_PATH/.kubeco
 K8S_URL=$(yq ".clusters[0].cluster.server" .kubeconfig)
 K8S_PORT=$(echo "$K8S_URL" | cut -d: -f3)
 
-echo ssh -N -i "$BUILD_SERVER_SSH_KEY_FILE" -L "$K8S_PORT:localhost:$K8S_PORT" "$BUILD_USER@$BUILD_SERVER" \&
+sudo ifconfig lo0 alias "$BUILD_KIND_IP"
+
+sudo ssh -N -i "$BUILD_SERVER_SSH_KEY_FILE" \
+  -L "$K8S_PORT:localhost:$K8S_PORT" \
+  -L "$BUILD_KIND_IP:80:$BUILD_KIND_IP:80" \
+  -L "$BUILD_KIND_IP:443:$BUILD_KIND_IP:443" \
+  "$BUILD_USER@$BUILD_SERVER" &
