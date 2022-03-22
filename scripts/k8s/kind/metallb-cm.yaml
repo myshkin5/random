@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      # Use the following command to find the IP range in use by Docker
+      #   docker network inspect -f '{{.IPAM.Config}}' kind
+      - 192.168.65.250-192.168.65.254
