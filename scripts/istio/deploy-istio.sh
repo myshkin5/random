@@ -57,6 +57,10 @@ if [[ $OPENSHIFT == "true" ]]; then
     --install \
     --namespace=kube-system \
     --set components.cni.enabled=true "${CNI_VALUES_OPTS[@]}" "$@"
+  if [[ $AM_RELEASE == "false" && $ISTIO_MINOR_VERSION == "1.11.5" ]]; then
+    kubectl patch daemonset istio-cni-node -n kube-system \
+      --patch-file "$DIR/patches/cni-daemonset-1.11.5.yaml"
+  fi
 fi
 
 if [[ ${PULLSECRET:-} != "" ]]; then
@@ -106,6 +110,13 @@ while true; do
   if [ -n "$LOAD_BALANCER" ]; then
     break
   fi
+  LOAD_BALANCER=$(kubectl get service istio-ingressgateway \
+    --namespace istio-system \
+    -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  if [ -n "$LOAD_BALANCER" ]; then
+    break
+  fi
+  sleep 5
 done
 
 echo "$LOAD_BALANCER" > load-balancer.value
