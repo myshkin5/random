@@ -18,4 +18,4 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manif
 METALLB_CONFIGMAP=${METALLB_CONFIGMAP:-"$DIR/metallb-cm.yaml"}
 kubectl apply -f "$METALLB_CONFIGMAP"
 
-kubectl apply -f "$DIR/../kubernetes-sigs-metrics-server-v0.4.2-components.yaml"
+kubectl apply -f "$DIR/kubernetes-sigs-metrics-server-v0.6.1-components-kind.yaml"

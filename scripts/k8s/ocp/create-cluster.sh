@@ -30,4 +30,4 @@ chmod -R go-rwx auth
 #oc adm policy add-scc-to-user privileged -z istio-cni -n kube-system
 oc adm policy add-scc-to-group anyuid system:serviceaccounts
 
-kubectl apply -f "$DIR/kubernetes-sigs-metrics-server-components-v0.4.1-ocp.yaml"
+kubectl apply -f "$DIR/kubernetes-sigs-metrics-server-v0.4.1-components-ocp.yaml"
