@@ -29,4 +29,4 @@ scp -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER:$REL_PATH/.kubeco
 K8S_URL=$(yq ".clusters[0].cluster.server" .kubeconfig)
 K8S_PORT=$(echo "$K8S_URL" | cut -d: -f3)
 
-ssh -i "$BUILD_SERVER_SSH_KEY_FILE" -L "$K8S_PORT:localhost:$K8S_PORT" "$BUILD_USER@$BUILD_SERVER"
+echo ssh -N -i "$BUILD_SERVER_SSH_KEY_FILE" -L "$K8S_PORT:localhost:$K8S_PORT" "$BUILD_USER@$BUILD_SERVER" \&
