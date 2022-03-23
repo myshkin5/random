@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: ~~NAME~~
+  namespace: istio-system
+spec:
+  hosts:
+  - ~~SITE~~
+  location: MESH_EXTERNAL
+  ports:
+  - number: 443
+    name: https
+    protocol: TLS
+  - number: 80
+    name: http
+    protocol: TLS
+  resolution: ~~RESOLUTION~~

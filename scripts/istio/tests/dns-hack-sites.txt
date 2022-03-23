@@ -1,0 +1,12 @@
+www.amazon.com
+www.aspenmesh.io
+www.circleci.com
+www.coredns.io
+www.docker.com
+www.envoyproxy.io
+www.github.com
+www.google.com
+www.istio.io
+www.kubernetes.io
+www.openshift.com
+www.yahoo.com
