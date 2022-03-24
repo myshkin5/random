@@ -7,11 +7,13 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 parse-params() {
   # default values of variables set from params
   RESOLUTION=DNS
+  LOOKUP_STATIC=0
   DELETE=0
 
   while true; do
     case "${1-}" in
     --delete) DELETE=1 ;;
+    --lookup-static) LOOKUP_STATIC=1 ;;
     -r | --resolution)
       RESOLUTION="${2-}"
       shift
@@ -28,7 +30,7 @@ parse-params() {
 parse-params "$@"
 
 while read -r SITE; do
-  NAME="dns-hack-$(echo "$SITE" | cut -d\. -f 2)"
+  NAME="dns-hack-$(echo "$SITE" | cut -d\. -f 1)"
   if [[ $DELETE == 1 ]]; then
     kubectl delete serviceentry "$NAME" -n istio-system || true
     continue
@@ -39,16 +41,20 @@ while read -r SITE; do
     -e "s/~~NAME~~/$NAME/g" \
     -e "s/~~SITE~~/$SITE/g" \
     -e "s/~~RESOLUTION~~/$RESOLUTION/g" \
-    "$DIR/dns-hack-service-entry.yaml" > "$FILE"
+    "$DIR/service-entry.yaml" > "$FILE"
 
   if [ "$RESOLUTION" == "STATIC" ]; then
-    echo "  endpoints:" >> "$FILE"
-    dig +short "$SITE" | grep -v "\.$" | while read -r IP; do
-      echo "  - address: $IP" >> "$FILE"
-    done
+    if [ "$LOOKUP_STATIC" == 0 ]; then
+      echo "  endpoints: []" >> "$FILE"
+    else
+      echo "  endpoints:" >> "$FILE"
+      dig +short "$SITE" | grep -v "\.$" | while read -r IP; do
+        echo "  - address: $IP" >> "$FILE"
+      done
+    fi
   fi
 
   kubectl apply -f "$FILE"
 
   rm "$FILE"
-done < "$DIR/dns-hack-sites.txt"
+done < "$DIR/sites.txt"
