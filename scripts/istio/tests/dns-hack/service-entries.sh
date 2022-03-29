@@ -6,9 +6,10 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 parse-params() {
   # default values of variables set from params
-  RESOLUTION=DNS
-  LOOKUP_STATIC=0
   DELETE=0
+  LOOKUP_STATIC=0
+  RESOLUTION=""
+  USE_FQDNS=0
 
   while true; do
     case "${1-}" in
@@ -18,6 +19,7 @@ parse-params() {
       RESOLUTION="${2-}"
       shift
       ;;
+    --use-fqdns) USE_FQDNS=1 ;;
     -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
@@ -36,6 +38,10 @@ while read -r SITE; do
     continue
   fi
 
+  if [[ $USE_FQDNS == 1 ]]; then
+    SITE+="."
+  fi
+
   FILE=$(mktemp -t dns-hack-service-entry)
   sed \
     -e "s/~~NAME~~/$NAME/g" \
@@ -43,14 +49,18 @@ while read -r SITE; do
     -e "s/~~RESOLUTION~~/$RESOLUTION/g" \
     "$DIR/service-entry.yaml" > "$FILE"
 
-  if [ "$RESOLUTION" == "STATIC" ]; then
-    if [ "$LOOKUP_STATIC" == 0 ]; then
-      echo "  endpoints: []" >> "$FILE"
-    else
-      echo "  endpoints:" >> "$FILE"
-      dig +short "$SITE" | grep -v "\.$" | while read -r IP; do
-        echo "  - address: $IP" >> "$FILE"
-      done
+  if [ -n "$RESOLUTION" ]; then
+    echo "  resolution: $RESOLUTION" >> "$FILE"
+
+    if [ "$RESOLUTION" == "STATIC" ]; then
+      if [ "$LOOKUP_STATIC" == 0 ]; then
+        echo "  endpoints: []" >> "$FILE"
+      else
+        echo "  endpoints:" >> "$FILE"
+        dig +short "$SITE" | grep -v "\.$" | while read -r IP; do
+          echo "  - address: $IP" >> "$FILE"
+        done
+      fi
     fi
   fi
 

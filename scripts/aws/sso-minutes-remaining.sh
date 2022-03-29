@@ -102,7 +102,7 @@ fi
 function check() {
   MINUTES_F=$(jq -r "((.Credentials.Expiration | fromdate) - now)/60" "$CLI_CACHE")
   MINUTES_F=$(echo "$MINUTES_F + $ADD_MINUTES" | bc | awk '{printf "%f", $0}')
-  PRE=""
+  PRE=$GREEN
   if (( $(echo "$MINUTES_F < $RED_THRESHOLD" | bc -l) )); then
     PRE=$RED
   fi
@@ -112,7 +112,22 @@ function check() {
     SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
     SECONDS_I=$(echo "($MINUTES_F - $MINUTES_I) * 60" | bc)
     SECONDS_I=${SECONDS_I#-}
-    printf "$PRE%.0f:%02.0f$NORMAL\n" "$MINUTES_I" "$SECONDS_I"
+    if (( "${MINUTES_I#-}" < 60 )); then
+      printf "$PRE%.0f:%02.0f$NORMAL\n" "$MINUTES_I" "$SECONDS_I"
+      return
+    fi
+
+    HOURS_I=$(echo "$MINUTES_I / 60" | bc)
+    MINUTES_I=$(echo "$MINUTES_I - $HOURS_I * 60" | bc)
+    MINUTES_I=${MINUTES_I#-}
+    if (( "${HOURS_I#-}" < 24 )); then
+      printf "$PRE%.0f:%02.0f:%02.0f$NORMAL\n" "$HOURS_I" "$MINUTES_I" "$SECONDS_I"
+      return
+    fi
+
+    DAYS_I=$(echo "$HOURS_I / 24" | bc)
+    HOURS_I=$(echo "-($HOURS_I - $DAYS_I * 24)" | bc)
+    printf "$PRE%.0fT%02.0f:%02.0f:%02.0f$NORMAL\n" "$DAYS_I" "$HOURS_I" "$MINUTES_I" "$SECONDS_I"
   else
     echo -e "$PRE$MINUTES_F$NORMAL"
   fi

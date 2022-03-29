@@ -11,6 +11,9 @@ TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
 touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
+rm -f bin/istioctl
+ln -s "$RELEASE_PATH/bin/istioctl" bin/
+
 kubectl apply -f "$DIR/istio-ns.yaml"
 if [[ ${MULTICLUSTER_NETWORK:-} != "" ]]; then
   kubectl label namespace istio-system "topology.istio.io/network=${MULTICLUSTER_NETWORK}"
