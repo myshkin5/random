@@ -14,4 +14,3 @@ spec:
   - number: 80
     name: http
     protocol: TLS
-  resolution: ~~RESOLUTION~~
