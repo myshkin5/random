@@ -11,6 +11,7 @@ TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
 touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
+mkdir -p bin
 rm -f bin/istioctl
 ln -s "$RELEASE_PATH/bin/istioctl" bin/
 

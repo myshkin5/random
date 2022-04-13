@@ -7,6 +7,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 parse-params() {
   # default values of variables set from params
   DELETE=0
+  FIRST_ENTRY_ONLY=0
   LOOKUP_STATIC=0
   RESOLUTION=""
   USE_FQDNS=0
@@ -14,6 +15,7 @@ parse-params() {
   while true; do
     case "${1-}" in
     --delete) DELETE=1 ;;
+    -f | --first-entry-only) FIRST_ENTRY_ONLY=1 ;;
     --lookup-static) LOOKUP_STATIC=1 ;;
     -r | --resolution)
       RESOLUTION="${2-}"
@@ -59,6 +61,9 @@ while read -r SITE; do
         echo "  endpoints:" >> "$FILE"
         dig +short "$SITE" | grep -v "\.$" | while read -r IP; do
           echo "  - address: $IP" >> "$FILE"
+          if [ "$FIRST_ENTRY_ONLY" == 1 ]; then
+            break
+          fi
         done
       fi
     fi
