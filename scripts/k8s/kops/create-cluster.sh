@@ -10,6 +10,7 @@ trap 'rm "$TMP_FILE"' EXIT
 
 INSTANCE_TYPE=${INSTANCE_TYPE:=t3a.large}
 NODE_COUNT=${NODE_COUNT:=5}
+SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:="$HOME/.ssh/id_ed25519_aws_dev.pub"}
 NETWORKING=${NETWORKING:=flannel}
 VER_OPT=""
 if [ -n "${K8S_VERSION:-}" ]; then
@@ -28,7 +29,7 @@ kops create cluster \
     --zones=us-west-2b \
     --name="$NAME" \
     --authorization RBAC \
-    --ssh-public-key="$HOME/.ssh/id_rsa_dev_k8s.pub" \
+    --ssh-public-key="$SSH_PUBLIC_KEY" \
     --topology=private \
     --admin-access="$my_ip/32" \
     --networking="$NETWORKING"

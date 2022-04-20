@@ -7,6 +7,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 source "$DIR/../istio/version-support.sh"
 
 INSTANCE_COUNT=${INSTANCE_COUNT:=1}
+SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY:="$HOME/.ssh/id_ed25519_aws_dev"}
 
 kubectl apply -f "$DIR/external-vm.yaml"
 kubectl apply -f "$DIR/external-vm-workloadgroup.yaml"
@@ -31,10 +32,10 @@ for (( INST_ITER=0; INST_ITER<INSTANCE_COUNT; INST_ITER++ )); do
   tar cfz "$CERT.tgz" "$CERT"
 
   PUBLIC_IP=$(cat external-vm-public-ip-$INST_ITER.value)
-  scp -i "$HOME/.ssh/id_ed25519_aws_dev" "$CERT.tgz" "ubuntu@$PUBLIC_IP:"
+  scp -i "$SSH_PRIVATE_KEY" "$CERT.tgz" "ubuntu@$PUBLIC_IP:"
 
-  ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$PUBLIC_IP" -t "tar xfz $CERT.tgz"
+  ssh -i "$SSH_PRIVATE_KEY" "ubuntu@$PUBLIC_IP" -t "tar xfz $CERT.tgz"
 
-  ssh -i "$HOME/.ssh/id_ed25519_aws_dev" "ubuntu@$PUBLIC_IP" \
+  ssh -i "$SSH_PRIVATE_KEY" "ubuntu@$PUBLIC_IP" \
     -t "sudo ./external-vm-cert-$INST_ITER/external-vm-sidecar.sh $ISTIO_PATCH_VERSION"
 done

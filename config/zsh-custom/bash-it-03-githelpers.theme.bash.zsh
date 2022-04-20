@@ -111,7 +111,7 @@ function _git-remote-info {
     if [[ "${same_branch_name}" != "true" ]]; then
       remote_info="\$(_git-upstream)"
     else
-      remote_info="$(_git-upstream-remote)"
+      remote_info="$(_git-upstream-remote | cut -c 1)"
     fi
   elif [[ ${same_branch_name} != "true" ]]; then
     remote_info="\$(_git-upstream-branch)"

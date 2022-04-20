@@ -1,0 +1,19 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dwayne-eks-dev
+  region: us-west-2
+
+nodeGroups:
+- name: dwayne-eks-dev-ng-1
+  instanceType: m5.2xlarge
+  desiredCapacity: 5
+  ssh:
+    allow: true
+    publicKeyPath: ~/.ssh/id_ed25519_aws_dev.pub
+  iam:
+    withAddonPolicies:
+      externalDNS: true
+  preBootstrapCommands:
+  - "sysctl -w kernel.core_pattern=\"/tmp/core-%e-%s-%u-%g-%p-%t.%P\""
