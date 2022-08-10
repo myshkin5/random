@@ -82,10 +82,9 @@ if [ "$VIA_CONFIG" == 0 ]; then
 else
   eksctl create cluster -f "$DIR/cluster.yaml" \
     --kubeconfig="$KUBECONFIG"
-  exit
 fi
 
-kubectl apply -f "$DIR/../kubernetes-sigs-metrics-server-v0.4.2-components.yaml"
+"$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
 
 aws cloudformation describe-stacks --stack-name "eksctl-$NAME-cluster" \
   | jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="VPC") | .OutputValue' > vpc-id.value

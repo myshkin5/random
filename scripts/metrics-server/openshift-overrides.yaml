@@ -1,0 +1,8 @@
+apiService:
+  create: false
+
+hostNetwork:
+  enabled: true
+
+args:
+- --kubelet-insecure-tls

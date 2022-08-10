@@ -49,4 +49,4 @@ dots() {
 
 kops validate cluster --wait 10m
 
-kubectl apply -f "$DIR/kubernetes-sigs-metrics-server-v0.3.7-components-kops.yaml"
+"$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
