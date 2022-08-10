@@ -16,4 +16,4 @@ nodeGroups:
     withAddonPolicies:
       externalDNS: true
   preBootstrapCommands:
-  - "sysctl -w kernel.core_pattern=\"/tmp/core-%e-%s-%u-%g-%p-%t.%P\""
+  - "sysctl -w kernel.core_pattern=\"/tmp/core\""

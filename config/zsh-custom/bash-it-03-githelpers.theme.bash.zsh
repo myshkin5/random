@@ -109,7 +109,7 @@ function _git-remote-info {
   if ([[ "${SCM_GIT_SHOW_REMOTE_INFO}" = "auto" ]] && [[ "$(_git-num-remotes)" -ge 2 ]]) ||
       [[ "${SCM_GIT_SHOW_REMOTE_INFO}" = "true" ]]; then
     if [[ "${same_branch_name}" != "true" ]]; then
-      remote_info="\$(_git-upstream)"
+      remote_info="$(_git-upstream | cut -c 1)"
     else
       remote_info="$(_git-upstream-remote | cut -c 1)"
     fi

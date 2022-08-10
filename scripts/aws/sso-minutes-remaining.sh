@@ -100,6 +100,9 @@ if [ -z "$CLI_CACHE" ]; then
 fi
 
 function check() {
+  # Forces an update to the metadata
+  aws sts get-caller-identity > /dev/null 2>&1 || true
+
   MINUTES_F=$(jq -r "((.Credentials.Expiration | fromdate) - now)/60" "$CLI_CACHE")
   MINUTES_F=$(echo "$MINUTES_F + $ADD_MINUTES" | bc | awk '{printf "%f", $0}')
   PRE=$GREEN

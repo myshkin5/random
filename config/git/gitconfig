@@ -13,7 +13,8 @@
 	config-prs-origin = config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
 	recent = !git --no-pager branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [push]
-	default = matching
+	autoSetupRemote = true
+	default = current
 [user]
 	name = Dwayne Schultz
 	email = myshkin5@users.noreply.github.com

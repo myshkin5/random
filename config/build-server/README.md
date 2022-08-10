@@ -1,4 +1,4 @@
-1. Install typical packages: `sudo apt-get install build-essential direnv make protobuf-compiler zsh`
+1. Install typical packages: `sudo apt-get install build-essential direnv make net-tools protobuf-compiler zsh`
 2. Set up the main user:
    1. `sudo adduser --shell /usr/bin/zsh --gecos 'me' --disabled-password dschultz`
    2. `sudo usermod -aG sudo dschultz`

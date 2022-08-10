@@ -19,6 +19,9 @@ kubectl delete ns test-ns || true
 kubectl delete -f istio-ready.yaml || true
 kubectl delete ns istio-ready || true
 
+helm delete -n fortio fortio || true
+kubectl delete ns fortio || true
+
 helm delete -n istio-system istio-egress || true
 helm delete -n istio-system istio-ingress || true
 helm delete -n istio-system istiod || true
@@ -27,10 +30,15 @@ helm delete -n istio-system istio-base || true
 
 helm delete -n istio-system istio || true
 helm delete -n istio-system istio-init || true
+helm delete -n istio-system dns-controller || true
 kubectl delete ns istio-system || true
 
 kubectl get crds | grep -e istio.io -e aspenmesh.io -e cert-manager.io | while read -r crd _; do
   kubectl delete crd "$crd"
+done || true
+
+kubectl get clusterrole | grep -e istio -e aspenmesh -e dns-controller | while read -r role _; do
+  kubectl delete clusterrole "$role"
 done || true
 
 kubectl delete validatingwebhookconfiguration aspen-mesh-controlplane || true
