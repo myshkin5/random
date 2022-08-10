@@ -19,3 +19,5 @@
       1. `sudo usermod -aG docker $USER`
 8. Install bazel: https://docs.bazel.build/versions/main/install-ubuntu.html#install-on-ubuntu
 9. Install gcloud: https://cloud.google.com/sdk/docs/install#deb
+10. Install `gh`: https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+11. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
