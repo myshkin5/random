@@ -19,3 +19,4 @@ METALLB_CONFIGMAP=${METALLB_CONFIGMAP:-"$DIR/metallb-cm.yaml"}
 kubectl apply -f "$METALLB_CONFIGMAP"
 
 "$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
+"$DIR/../../kube-prometheus/deploy-latest-kube-prom.sh"

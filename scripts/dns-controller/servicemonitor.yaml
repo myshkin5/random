@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dns-controller
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: dns-controller
+  endpoints:
+  - port: http

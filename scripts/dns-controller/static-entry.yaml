@@ -1,0 +1,14 @@
+apiVersion: networking.aspenmesh.io/v1beta1
+kind: DnsStaticEntry
+metadata:
+  name: ~~NAME~~
+  namespace: istio-system
+spec:
+  host: ~~SITE~~
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  - number: 80
+    name: http
+    protocol: HTTP

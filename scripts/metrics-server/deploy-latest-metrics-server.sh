@@ -10,7 +10,7 @@ else
   OVERRIDES=$DIR/default-overrides.yaml
 fi
 
-LATEST=$(curl --silent https://api.github.com/repos/kubernetes-sigs/metrics-server/releases/latest \
+LATEST=$(curl --silent "https://api.github.com/repos/kubernetes-sigs/metrics-server/releases/latest" \
   | jq -r '.tag_name' | cut -d- -f5)
 ARCHIVE="metrics-server-$LATEST.tgz"
 DOWNLOAD="https://github.com/kubernetes-sigs/metrics-server/releases/download/metrics-server-helm-chart-$LATEST/$ARCHIVE"

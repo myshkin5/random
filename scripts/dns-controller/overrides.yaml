@@ -1,0 +1,17 @@
+#endpointExpiryDuration: 5s
+#minReconcileDuration: 1s
+#defaultNegativeTTLDuration: 5s
+#ttlCeilingDuration: 5m
+#dnsClientMode: dual-stack
+loggingLevel: debug
+
+#hub: quay.io/aspenmesh/carrier-grade-releases
+#hub: quay.io/aspenmesh/releases-pr
+#image: dns-controller-1.11.8-am3
+
+#imagePullPolicy: IfNotPresent
+imagePullSecrets:
+- name: dns-controller-pull-secret
+- name: aspenmesh-istio-private-pr-pull-secret
+
+#replicas: 2

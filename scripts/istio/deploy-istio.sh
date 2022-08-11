@@ -56,6 +56,7 @@ if [[ $OPENSHIFT == "true" ]]; then
   CNI_VALUES_OPTS=("${VALUES_OPTS[@]}")
   if [[ $AM_RELEASE == "false" ]]; then
     CNI_VALUES_OPTS+=("--values=$DIR/overrides/open-source-cni-values.yaml")
+    CNI_VALUES_OPTS+=("--set=cni.privileged=true")
   fi
   helm upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
     --install \
@@ -125,13 +126,13 @@ done
 
 echo "$LOAD_BALANCER" > load-balancer.value
 
-ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/analysis-emulator"
-if [ -d "$ANALYSIS_CHART" ]; then
-  kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
-  helm upgrade analysis-emulator "$ANALYSIS_CHART" \
-    --install \
-    --namespace=analysis-emulator "${VALUES_OPTS[@]}" "$@"
-fi
+#ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/analysis-emulator"
+#if [ -d "$ANALYSIS_CHART" ]; then
+#  kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
+#  helm upgrade analysis-emulator "$ANALYSIS_CHART" \
+#    --install \
+#    --namespace=analysis-emulator "${VALUES_OPTS[@]}" "$@"
+#fi
 
 if [[ ${CHECK_READY:-} != "false" ]]; then
   kubectl apply -f "$DIR/ready.yaml"
