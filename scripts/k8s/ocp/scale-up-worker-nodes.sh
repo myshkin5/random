@@ -25,6 +25,7 @@ while true; do
       --selector=node-role.kubernetes.io/worker | wc -l) == "$REPLICAS" )); then
     break
   fi
+  sleep 5
 done
 
 oc get machinesets -n openshift-machine-api
