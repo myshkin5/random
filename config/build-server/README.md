@@ -18,8 +18,8 @@
    6. `sudo cp ~ubuntu/.ssh/authorized_keys ~dschultz/.ssh/authorized_keys`
    7. `sudo chown -R dschultz:dschultz ~dschultz/.ssh`
    8. Login as `dschultz` with agent forwarded ssh keys for github
-6. Install go: https://go.dev/doc/install
-7. Install ohmyzsh: `sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+6. Install ohmyzsh: `sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+7. Install go: https://go.dev/doc/install
 8. Workspace: `mkdir workspace && cd workspace`
 9. Set up random config:
    1. From laptop in random working dir `dev-sync.sh`
@@ -30,7 +30,13 @@
     2. https://docs.docker.com/engine/install/ubuntu/#install-docker-engine
     3. https://docs.docker.com/engine/install/linux-postinstall/
        1. `sudo usermod -aG docker $USER`
+    4. https://docs.docker.com/engine/install/linux-postinstall/#configure-docker-to-start-on-boot
+    5. https://docs.docker.com/config/daemon/ipv6/
 11. Install bazel: https://docs.bazel.build/versions/main/install-ubuntu.html#install-on-ubuntu
 12. Install gcloud: https://cloud.google.com/sdk/docs/install#deb
+    1. `export AUTH_HEADER="Authorization: Bearer $(gcloud auth print-access-token)"`
 13. Install `gh`: https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+    1. `gh auth login`
 14. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
+15. Install KinD: https://kind.sigs.k8s.io/docs/user/quick-start/#installing-from-release-binaries
+16. Install `kubectl`: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management

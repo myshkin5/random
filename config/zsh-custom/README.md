@@ -1,7 +1,15 @@
 # Customizing zsh
 1. Set as default shell (already default in latest)
 2. Install oh my zsh
-3. Link in the custom scripts:
+3. Install iterm2 shell integration
+4. Edit `$HOME/.zshrc`
+   1. Set `ZSH_THEME` to `dwayne`
+   2. Add `(direnv git pyenv ssh-agent z)` to `plugins` list
+
+      NOTE: DO NOT use `ssh-agent` on hosts that will be ssh'ed to (it overwrites forwarded keys)
+   3. Comment out iterm integration (handled below)
+   4. Add `unsetopt share_history` to keep each shell with its own history
+5. Link in the custom scripts:
     ```shell
     ln -s $HOME/workspace/random/config/zsh-custom/themes/dwayne.zsh-theme $HOME/.oh-my-zsh/custom/themes
     ln -s $HOME/workspace/random/config/zsh-custom/aliases.zsh $HOME/.oh-my-zsh/custom
@@ -11,10 +19,3 @@
     ln -s $HOME/workspace/random/config/zsh-custom/env.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/iterm2.zsh $HOME/.oh-my-zsh/custom
     ```
-4. Edit `$HOME/.zshrc`
-   1. Set `ZSH_THEME` to `dwayne`
-   2. Add `(direnv git pyenv ssh-agent z)` to `plugins` list
-
-      NOTE: DO NOT use `ssh-agent` on hosts that will be ssh'ed to (it overwrites forwarded keys)
-   3. Comment out iterm integration (handled above)
-   4. Add `unsetopt share_history` to keep each shell with its own history

@@ -3,6 +3,7 @@
 	co = checkout
 	br = branch
 	ci = commit
+	cp = cherry-pick
 	sur = submodule update --init --recursive
         lol = log --graph --decorate --pretty=oneline --abbrev-commit
         lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
