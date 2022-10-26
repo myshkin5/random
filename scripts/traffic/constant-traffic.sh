@@ -8,13 +8,12 @@ if [ $# -gt 0 ]; then
 fi
 
 while true; do
-  POD=$(kubectl get pods -n traffic-client -l app=client -o jsonpath='{.items[0].metadata.name}' 2> /dev/null)
+  POD=$(kubectl get pods -n traffic-client -l app=client -o jsonpath='{.items[0].metadata.name}' 2> /dev/null || true)
 
   SPACE=" "
-  kubectl exec "$POD" -n traffic-client -- ls hey > /dev/null 2>&1
-  if [[ $? != 0 ]]; then
-    kubectl cp ~/workspace/hey_linux_amd64 -c client "traffic-client/$POD:hey" > /dev/null 2>&1
-    kubectl exec -n traffic-client -c client "$POD" -- chmod +x /hey > /dev/null 2>&1
+  if ! kubectl exec "$POD" -n traffic-client -- ls hey > /dev/null 2>&1; then
+    kubectl cp ~/workspace/hey_linux_amd64 -c client "traffic-client/$POD:hey" > /dev/null 2>&1 || true
+    kubectl exec -n traffic-client -c client "$POD" -- chmod +x /hey > /dev/null 2>&1 || true
     sleep 5
     SPACE="^"
   fi

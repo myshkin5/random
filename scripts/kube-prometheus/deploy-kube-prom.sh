@@ -4,16 +4,13 @@ set -xEeuo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-if (( $(kubectl get ns | grep -c openshift) > 0 )); then
-  OVERRIDES=$DIR/openshift-overrides.yaml
-else
-  OVERRIDES=$DIR/default-overrides.yaml
+if [ -z "${KUBE_PROM_VERSION:-}" ]; then
+  KUBE_PROM_VERSION=$(curl --silent "https://api.github.com/repos/prometheus-operator/kube-prometheus/releases/latest" \
+    | jq -r '.tag_name' | cut -d- -f5)
 fi
 
-LATEST=$(curl --silent "https://api.github.com/repos/prometheus-operator/kube-prometheus/releases/latest" \
-  | jq -r '.tag_name' | cut -d- -f5)
-ARCHIVE="kube-prometheus-$LATEST.tar.gz"
-DOWNLOAD="https://github.com/prometheus-operator/kube-prometheus/archive/refs/tags/$LATEST.tar.gz"
+ARCHIVE="kube-prometheus-$KUBE_PROM_VERSION.tar.gz"
+DOWNLOAD="https://github.com/prometheus-operator/kube-prometheus/archive/refs/tags/$KUBE_PROM_VERSION.tar.gz"
 
 curl --location --output "$ARCHIVE" "$DOWNLOAD"
 

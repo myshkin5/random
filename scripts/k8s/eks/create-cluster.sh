@@ -84,7 +84,7 @@ else
     --kubeconfig="$KUBECONFIG"
 fi
 
-"$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
+"$DIR/../../metrics-server/deploy-metrics-server.sh"
 
 aws cloudformation describe-stacks --stack-name "eksctl-$NAME-cluster" \
   | jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="VPC") | .OutputValue' > vpc-id.value

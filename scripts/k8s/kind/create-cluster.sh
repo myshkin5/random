@@ -4,19 +4,31 @@ set -xEeuo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-kind create cluster --name "$NAME" --config "$KIND_CONFIG"
+KIND_OPTS=()
+if [ -n "${K8S_VERSION:-}" ]; then
+  KIND_VERSION=$(kind --version | cut -f3 -d\ )
+  IMAGE=$(curl --silent "https://github.com/kubernetes-sigs/kind/releases/tag/v$KIND_VERSION" | \
+    grep "^<li>$K8S_VERSION:" | sed -e 's#.*<code>\(.*\)</code>.*#\1#')
+  KIND_OPTS+=("--image" "$IMAGE")
+fi
+
+kind create cluster --name "$NAME" --config "$KIND_CONFIG" "${KIND_OPTS[@]}"
 
 kubectl get configmap kube-proxy -n kube-system -o yaml | \
   sed -e "s/strictARP: false/strictARP: true/" -e "s/mode: iptables/mode: ipvs/" | \
   kubectl apply -f - -n kube-system
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml
-kubectl create secret generic -n metallb-system memberlist \
-  --from-literal=secretkey="$(openssl rand -base64 128)"
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
+if [ -z "${METALLB_VERSION:-}" ]; then
+  METALLB_VERSION=$(curl --silent "https://api.github.com/repos/metallb/metallb/releases/latest" \
+    | jq -r '.tag_name' | cut -d- -f5)
+fi
 
-METALLB_CONFIGMAP=${METALLB_CONFIGMAP:-"$DIR/metallb-cm.yaml"}
-kubectl apply -f "$METALLB_CONFIGMAP"
+kubectl apply -f "https://raw.githubusercontent.com/metallb/metallb/$METALLB_VERSION/config/manifests/metallb-frr.yaml"
+kubectl wait pods -n metallb-system -l app=metallb --for condition=Ready --timeout=5m
+kubectl apply -f "$DIR/metallb-l2ad.yaml"
 
-"$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
-"$DIR/../../kube-prometheus/deploy-latest-kube-prom.sh"
+METALLB_POOL=${METALLB_POOL:-"$DIR/metallb-pool.yaml"}
+kubectl apply -f "$METALLB_POOL"
+
+"$DIR/../../metrics-server/deploy-metrics-server.sh"
+"$DIR/../../kube-prometheus/deploy-kube-prom.sh"

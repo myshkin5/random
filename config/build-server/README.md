@@ -40,3 +40,4 @@
 14. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
 15. Install KinD: https://kind.sigs.k8s.io/docs/user/quick-start/#installing-from-release-binaries
 16. Install `kubectl`: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
+17. https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files

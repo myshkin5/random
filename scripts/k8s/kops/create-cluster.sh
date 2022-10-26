@@ -49,4 +49,4 @@ dots() {
 
 kops validate cluster --wait 10m
 
-"$DIR/../../metrics-server/deploy-latest-metrics-server.sh"
+"$DIR/../../metrics-server/deploy-metrics-server.sh"

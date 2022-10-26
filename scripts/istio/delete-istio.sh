@@ -37,8 +37,16 @@ kubectl get crds | grep -e istio.io -e aspenmesh.io -e cert-manager.io | while r
   kubectl delete crd "$crd"
 done || true
 
-kubectl get clusterrole | grep -e istio -e aspenmesh -e dns-controller | while read -r role _; do
+kubectl get clusterrole | grep -e istio -e aspenmesh -e aspen-mesh -e dns-controller | while read -r role _; do
   kubectl delete clusterrole "$role"
+done || true
+
+kubectl get clusterrolebinding | grep -e istio -e aspenmesh -e aspen-mesh -e dns-controller | while read -r binding _; do
+  kubectl delete clusterrolebinding "$binding"
+done || true
+
+for ns in $(kubectl get ns -o name | cut -d/ -f2 | grep -e "^bookinfo-[0-9]*-[0-9]*$"); do
+  kubectl delete ns "$ns"
 done || true
 
 kubectl delete validatingwebhookconfiguration aspen-mesh-controlplane || true
