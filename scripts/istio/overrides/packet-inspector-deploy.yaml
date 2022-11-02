@@ -1,0 +1,12 @@
+analysis:
+  maxConcurrentMessages: 20
+  # mode is either `normal` or `benchmark`. `benchmark` does not write capture
+  # files and tracks unique requests
+  mode: benchmark
+  processingDelay: 25ms
+
+resources:
+  limits:
+    memory: "4Gi"
+    cpu: 2
+
