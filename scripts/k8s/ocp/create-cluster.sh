@@ -31,3 +31,4 @@ chmod -R go-rwx auth
 oc adm policy add-scc-to-group anyuid system:serviceaccounts
 
 "$DIR/../../metrics-server/deploy-metrics-server.sh"
+"$DIR/../../kube-prometheus/deploy-kube-prom.sh"

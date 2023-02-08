@@ -1,4 +1,5 @@
 aspen-mesh-controlplane:
+  enabled: false
   clusterId: youthful-ferret
   userAuth:
     type: none
@@ -66,7 +67,11 @@ jaeger:
 pilot:
   traceSampling: "1.0"
 
+aspen-mesh-dashboard:
+  enabled: false
+
 aspen-mesh-event-storage:
+  enabled: false
   resources:
     requests: null
     limits: null

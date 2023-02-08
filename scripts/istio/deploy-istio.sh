@@ -43,7 +43,7 @@ helm upgrade istio-base "$BASE_CHART" \
   --install \
   --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
 
-if [[ $OPENSHIFT == "true" ]]; then
+if [[ $OPENSHIFT == "true" || ${CNI_ENABLED:-} == "true" ]]; then
   CNI_VALUES_OPTS=("${VALUES_OPTS[@]}")
   if [[ $AM_RELEASE == "false" ]]; then
     CNI_VALUES_OPTS+=("--values=$DIR/overrides/open-source-cni-values.yaml")

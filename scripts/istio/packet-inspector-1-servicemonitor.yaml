@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: packet-inspector-1
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: aspen-mesh-packet-inspector
+  endpoints:
+  - port: http-admin

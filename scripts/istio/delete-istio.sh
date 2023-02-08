@@ -4,6 +4,11 @@ set -xeuEo pipefail
 
 kubectl delete ns bookinfo || true
 
+helm delete -n diameter-client diameter-client || true
+helm delete -n diameter-server diameter-server || true
+kubectl delete ns diameter-client || true
+kubectl delete ns diameter-server || true
+
 kubectl delete ns traffic-client || true
 kubectl delete ns traffic-server || true
 
@@ -65,6 +70,10 @@ for ns in $(kubectl get ns -o name | cut -d/ -f2 | grep -e "^bookinfo-[0-9]*-[0-
 done || true
 
 for ns in $(kubectl get ns -o name | cut -d/ -f2 | grep -e "^test-ns-[0-9]*-[0-9]*$"); do
+  kubectl delete ns "$ns"
+done || true
+
+for ns in $(kubectl get ns -o name | cut -d/ -f2 | grep -e "^lua-filter-[0-9]*-[0-9]*$"); do
   kubectl delete ns "$ns"
 done || true
 
