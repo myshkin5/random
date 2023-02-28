@@ -4,7 +4,7 @@ set -euEo pipefail
 
 OPTS=("-n" "10000" "-c" "20")
 if [ $# -gt 0 ]; then
-  OPTS=("$@")
+  OPTS+=("$@")
 fi
 
 while true; do

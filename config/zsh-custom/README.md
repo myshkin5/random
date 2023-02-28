@@ -8,7 +8,6 @@
 
       NOTE: DO NOT use `ssh-agent` on hosts that will be ssh'ed to (it overwrites forwarded keys)
    3. Comment out iterm integration (handled below)
-   4. Add `unsetopt share_history` to keep each shell with its own history
 5. Link in the custom scripts:
     ```shell
     ln -s $HOME/workspace/random/config/zsh-custom/themes/dwayne.zsh-theme $HOME/.oh-my-zsh/custom/themes
@@ -18,4 +17,5 @@
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-03-githelpers.theme.bash.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/env.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/iterm2.zsh $HOME/.oh-my-zsh/custom
+    ln -s $HOME/workspace/random/config/zsh-custom/aws.zsh $HOME/.oh-my-zsh/custom
     ```

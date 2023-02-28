@@ -24,10 +24,16 @@ fi
 
 REL_PATH=${PWD:(( ${#HOME}+1 ))}
 
-ssh -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER" -- mkdir -p "$REL_PATH"
+RET_CODE=0
+CREATED=false
+ssh -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER" -- test -e "$REL_PATH" || RET_CODE=$?
+if [[ "$RET_CODE" -ne 0 ]]; then
+  ssh -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER" -- mkdir -p "$REL_PATH"
+  CREATED=true
+fi
 
 RSYNC_OPTS=""
-if [ -f .gitignore ]; then
+if [[ -f .gitignore && "$CREATED" == "false" ]]; then
   RSYNC_OPTS="--exclude-from=.gitignore"
 fi
 

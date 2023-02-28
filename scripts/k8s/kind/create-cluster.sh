@@ -4,6 +4,20 @@ set -xEeuo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+if [ -z "${KIND_VERSION:-}" ]; then
+  KIND_VERSION=$(curl --silent "https://api.github.com/repos/kubernetes-sigs/kind/releases/latest" \
+    | jq -r '.tag_name' | cut -d- -f5)
+fi
+
+BINARY="kind-linux-amd64-$KIND_VERSION"
+DOWNLOAD="https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64"
+
+curl --location --output "$BINARY" "$DOWNLOAD"
+chmod +x "$BINARY"
+mkdir -p bin
+rm -f bin/kind
+ln -s "../$BINARY" bin/kind
+
 KIND_OPTS=()
 if [ -n "${K8S_VERSION:-}" ]; then
   KIND_VERSION=$(kind --version | cut -f3 -d\ )

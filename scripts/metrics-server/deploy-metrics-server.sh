@@ -5,8 +5,8 @@ set -xEeuo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 if [ -z "${METRICS_SERVER_VERSION:-}" ]; then
-  METRICS_SERVER_VERSION=$(curl --silent "https://api.github.com/repos/kubernetes-sigs/metrics-server/releases/latest" \
-    | jq -r '.tag_name' | cut -d- -f5)
+  METRICS_SERVER_VERSION=$(curl --silent "https://api.github.com/repos/kubernetes-sigs/metrics-server/releases" | \
+    jq -r 'map(select(.tag_name | startswith("metrics-server-helm-chart-")))[0].tag_name' | cut -d- -f5)
 fi
 
 if (( $(kubectl get ns | grep -c openshift) > 0 )); then

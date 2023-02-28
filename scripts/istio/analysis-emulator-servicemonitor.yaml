@@ -1,11 +1,12 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: packet-inspector-1
-  namespace: istio-system
+  name: analysis-emulator
+  namespace: analysis-emulator
 spec:
   selector:
     matchLabels:
-      istio: packet-inspector-aggregator
+      app: packet-inspector-1-analysis-emulator
   endpoints:
   - port: http-admin
+    path: /prommetrics

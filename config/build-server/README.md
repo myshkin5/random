@@ -1,11 +1,12 @@
 1. EC2 instance
-   1. Ubuntu
-   2. m6a.4xlarge
-   3. dwayne-ed25519-key-pair
-   4. vpc-09f3...
-   5. Assign public IP (both IPv4 and IPv6)
-   6. dwayne-build-server security group
-   7. 500 GB gp3 root volume
+   1. Name: dschultz, Team: twistio
+   2. Ubuntu 20.04
+   3. m6a.4xlarge
+   4. dschultz ed25519 key-pair
+   5. vpc-0aabd...
+   6. Assign public IP (both IPv4 and IPv6)
+   7. dschultz-build-server security group
+   8. 500 GB gp3 root volume
 2. Create an EIP and associate it with the instance
 3. `sudo apt-get update`
 4. Install typical packages: `sudo apt-get install build-essential clang direnv jq make net-tools protobuf-compiler zsh`

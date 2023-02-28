@@ -35,3 +35,4 @@ if [[ -d "$PACKET_INSPECTOR_CHART" ]]; then
 fi
 
 kubectl apply -f "$DIR/packet-inspector-1-servicemonitor.yaml"
+kubectl apply -f "$DIR/analysis-emulator-servicemonitor.yaml"
