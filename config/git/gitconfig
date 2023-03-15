@@ -19,7 +19,9 @@
 [user]
 	name = Dwayne Schultz
 	email = myshkin5@users.noreply.github.com
-[url "git@github.com:"]
-	insteadOf = https://github.com/
+[url "git@github.com:F5-External"]
+	insteadOf = https://github.com/F5-External
+[url "git@github.com:aspenmesh"]
+	insteadOf = https://github.com/aspenmesh
 [init]
 	defaultBranch = main

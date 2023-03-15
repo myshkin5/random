@@ -31,6 +31,14 @@ REL_PATH=${PWD:(( ${#HOME}+1 ))}
 
 REMOTE_KUBECONFIG=${REMOTE_KUBECONFIG:-$REL_PATH/.kubeconfig}
 
+PID=$(ps auxwww | \
+  grep ssh | grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
+  awk '{ print $2 }')
+if [ -n "$PID" ]; then
+  echo "Already connected"
+  exit 1
+fi
+
 scp -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER:$REMOTE_KUBECONFIG" .kubeconfig
 
 K8S_URL=$(yq ".clusters[0].cluster.server" .kubeconfig)

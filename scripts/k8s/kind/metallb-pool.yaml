@@ -7,4 +7,4 @@ spec:
   addresses:
   # Use the following command to find the IP range in use by Docker
   #   docker network inspect -f '{{.IPAM.Config}}' kind
-  - 172.18.0.250-172.18.0.254
+  - 172.31.0.250-172.31.0.254
