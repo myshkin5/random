@@ -31,9 +31,9 @@ REL_PATH=${PWD:(( ${#HOME}+1 ))}
 
 REMOTE_KUBECONFIG=${REMOTE_KUBECONFIG:-$REL_PATH/.kubeconfig}
 
-PID=$(ps auxwww | \
-  grep ssh | grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
-  awk '{ print $2 }')
+PID=$(pgrep -l -f ssh | \
+  grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
+  awk '{ print $2 }' || true)
 if [ -n "$PID" ]; then
   echo "Already connected"
   exit 1

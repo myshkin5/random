@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -xeEo pipefail
+set -xeEou pipefail
 
 if [ -z "$BUILD_SERVER_SSH_KEY_FILE" ]; then
   >&2 echo "BUILD_SERVER_SSH_KEY_FILE must be defined"

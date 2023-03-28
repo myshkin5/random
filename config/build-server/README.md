@@ -43,6 +43,8 @@
 9. Install KinD: https://kind.sigs.k8s.io/docs/user/quick-start/#installing-from-release-binaries
 10. https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
 11. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
+12. Add idle shutdown crontab:
+    * `echo "* * * * * /home/dschultz/workspace/random/scripts/build-server/idle-shutdown.sh >> /home/dschultz/idle-shutdown.log 2>&1" | crontab`
 
 ### Optional
 1. Install `gh`: https://github.com/cli/cli/blob/trunk/docs/install_linux.md
