@@ -33,7 +33,7 @@ REMOTE_KUBECONFIG=${REMOTE_KUBECONFIG:-$REL_PATH/.kubeconfig}
 
 PID=$(pgrep -l -f ssh | \
   grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
-  awk '{ print $2 }' || true)
+  awk '{ print $1 }' || true)
 if [ -n "$PID" ]; then
   echo "Already connected"
   exit 1

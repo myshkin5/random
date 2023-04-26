@@ -16,8 +16,9 @@
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-02-base.theme.bash.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-03-githelpers.theme.bash.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/env.zsh $HOME/.oh-my-zsh/custom
-    ln -s $HOME/workspace/random/config/zsh-custom/iterm2.zsh $HOME/.oh-my-zsh/custom
+    ln -s $HOME/workspace/random/config/zsh-custom/idea.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/idle-shutdown.zsh $HOME/.oh-my-zsh/custom
+    ln -s $HOME/workspace/random/config/zsh-custom/iterm2.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/themes/dwayne.zsh-theme $HOME/.oh-my-zsh/custom/themes
     ```
 6. Create `$HOME/.oh-my-zsh/custom/openstack.zsh`:

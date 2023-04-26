@@ -12,10 +12,9 @@ if [ -z "$BUILD_USER" ]; then
   exit 1
 fi
 
-# shellcheck disable=SC2009 # pgrep can't filter other ssh commands out
-PID=$(ps auxwww | \
-  grep ssh | grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
-  awk '{ print $2 }')
+PID=$(pgrep -l -f ssh | \
+  grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
+  awk '{ print $1 }' || true)
 if [ -n "$PID" ]; then
   sudo kill "$PID"
 fi
