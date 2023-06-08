@@ -11,7 +11,7 @@ fi
 POD=""
 while [ "$POD" == "" ]; do
   POD=$(kubectl get pod -n analysis-emulator \
-    -l app=analysis-emulator \
+    -l "app in (packet-inspector-1-analysis-emulator, analysis-emulator)" \
     -o jsonpath='{.items[0].metadata.name}' || true)
   sleep 1
 done

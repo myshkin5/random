@@ -9,8 +9,10 @@ helm delete -n diameter-server diameter-server || true
 kubectl delete ns diameter-client || true
 kubectl delete ns diameter-server || true
 
-kubectl delete ns traffic-client || true
-kubectl delete ns traffic-server || true
+helm delete -n http-client http-client || true
+helm delete -n http-server http-server || true
+kubectl delete ns http-client || true
+kubectl delete ns http-server || true
 
 helm delete -n packet-inspector-benchmark packet-inspector-benchmark-client || true
 helm delete -n packet-inspector-benchmark packet-inspector-benchmark-server || true
@@ -20,12 +22,6 @@ helm delete -n analysis-emulator analysis-emulator || true
 kubectl delete ns analysis-emulator || true
 kubectl delete ns test-ns || true
 
-# Legacy
-kubectl delete ns packet-inspector-traffic || true
-kubectl delete ns packet-inspector-traffic-client || true
-kubectl delete ns packet-inspector-traffic-server || true
-
-kubectl delete -f istio-ready.yaml || true
 kubectl delete ns istio-ready || true
 
 helm delete -n fortio fortio || true
@@ -63,6 +59,10 @@ done || true
 
 kubectl get validatingwebhookconfiguration | grep -e istio | while read -r config _; do
   kubectl delete validatingwebhookconfiguration "$config"
+done || true
+
+kubectl get mutatingwebhookconfiguration | grep -e istio | while read -r config _; do
+  kubectl delete mutatingwebhookconfiguration "$config"
 done || true
 
 for ns in $(kubectl get ns -o name | cut -d/ -f2 | grep -e "^bookinfo-[0-9]*-[0-9]*$"); do

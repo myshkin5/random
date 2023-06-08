@@ -47,6 +47,9 @@ case $ISTIO_MINOR_VERSION in
   1.14)
     export CRD_COUNT=15
     ;;
+  1.18)
+    export CRD_COUNT=15
+    ;;
   *)
     echo "Unknown minor version"
     exit 1

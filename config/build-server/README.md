@@ -14,14 +14,17 @@
 1. `sudo apt-get update && sudo apt-get upgrade`
 2. Install typical packages: `sudo apt-get install build-essential clang direnv jq make net-tools protobuf-compiler zsh`
 3. Set up the main user:
-   1. `sudo adduser --shell /usr/bin/zsh --gecos 'me' --disabled-password dschultz`
-   2. `sudo usermod -aG sudo dschultz`
-   3. Append `dschultz ALL=(ALL) NOPASSWD:ALL` via `visudo`
-   4. `sudo mkdir ~dschultz/.ssh`
-   5. `sudo chmod go-rwx ~dschultz/.ssh`
-   6. `sudo cp ~ubuntu/.ssh/authorized_keys ~dschultz/.ssh/authorized_keys`
-   7. `sudo chown -R dschultz:dschultz ~dschultz/.ssh`
-   8. Login as `dschultz` with agent forwarded ssh keys for github
+   1. Commands:
+      ```shell
+      sudo adduser --shell /usr/bin/zsh --gecos 'me' --disabled-password dschultz
+      sudo usermod -aG sudo dschultz
+      sudo mkdir ~dschultz/.ssh
+      sudo chmod go-rwx ~dschultz/.ssh
+      sudo cp ~ubuntu/.ssh/authorized_keys ~dschultz/.ssh/authorized_keys
+      sudo chown -R dschultz:dschultz ~dschultz/.ssh
+      ```
+   2. Append `dschultz ALL=(ALL) NOPASSWD:ALL` via `visudo`
+   3. Login as `dschultz` with agent forwarded ssh keys for github
 4. Install ohmyzsh: `sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
 5. Set up random config:
    1. From laptop in random working dir `dev-sync.sh`
@@ -40,10 +43,9 @@
 7. Install gcloud: https://cloud.google.com/sdk/docs/install#deb
    1. `export AUTH_HEADER="Authorization: Bearer $(gcloud auth print-access-token)"`
 8. Install `kubectl`: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
-9. Install KinD: https://kind.sigs.k8s.io/docs/user/quick-start/#installing-from-release-binaries
-10. https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
-11. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
-12. Add idle shutdown crontab:
+9. https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
+10. Install helm: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
+11. Add idle shutdown crontab:
     * `echo "*/10 * * * * /home/dschultz/workspace/random/scripts/build-server/idle-shutdown.sh >> /home/dschultz/idle-shutdown.log 2>&1" | crontab`
 
 ### Optional

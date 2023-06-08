@@ -27,10 +27,6 @@ if [[ $PWD != $HOME/workspace/clusters/* ]]; then
   exit 1
 fi
 
-REL_PATH=${PWD:(( ${#HOME}+1 ))}
-
-REMOTE_KUBECONFIG=${REMOTE_KUBECONFIG:-$REL_PATH/.kubeconfig}
-
 PID=$(pgrep -l -f ssh | \
   grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
   awk '{ print $1 }' || true)
@@ -39,6 +35,8 @@ if [ -n "$PID" ]; then
   exit 1
 fi
 
+REL_PATH=${PWD:(( ${#HOME}+1 ))}
+REMOTE_KUBECONFIG=${REMOTE_KUBECONFIG:-$REL_PATH/.kubeconfig}
 scp -i "$BUILD_SERVER_SSH_KEY_FILE" "$BUILD_USER@$BUILD_SERVER:$REMOTE_KUBECONFIG" .kubeconfig
 
 K8S_URL=$(yq ".clusters[0].cluster.server" .kubeconfig)
@@ -50,4 +48,5 @@ sudo ssh -N -i "$BUILD_SERVER_SSH_KEY_FILE" \
   -L "$K8S_PORT:localhost:$K8S_PORT" \
   -L "$BUILD_KIND_IP:80:$BUILD_KIND_IP:80" \
   -L "$BUILD_KIND_IP:443:$BUILD_KIND_IP:443" \
+  -o ServerAliveInterval=14400 -o ServerAliveCountMax=0 \
   "$BUILD_USER@$BUILD_SERVER" > /dev/null 2>&1 &
