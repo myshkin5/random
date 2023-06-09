@@ -7,18 +7,24 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 if (( $(kubectl get namespace | grep -c http-server) == 0 )); then
   kubectl create namespace http-server
 fi
-kubectl label namespace http-server istio-injection=enabled
-#kubectl label namespace http-server istio-injection-
-#kubectl label namespace http-server istio.io/dataplane-mode=ambient
-kubectl label namespace http-server istio.io/dataplane-mode-
+if [ "$AMBIENT" == true ]; then
+  kubectl label namespace http-server istio.io/dataplane-mode=ambient
+  kubectl label namespace http-server istio-injection-
+else
+  kubectl label namespace http-server istio-injection=enabled
+  kubectl label namespace http-server istio.io/dataplane-mode-
+fi
 
 if (( $(kubectl get namespace | grep -c http-client) == 0 )); then
   kubectl create namespace http-client
 fi
-kubectl label namespace http-client istio-injection=enabled
-#kubectl label namespace http-client istio-injection-
-#kubectl label namespace http-client istio.io/dataplane-mode=ambient
-kubectl label namespace http-client istio.io/dataplane-mode-
+if [ "$AMBIENT" == true ]; then
+  kubectl label namespace http-client istio.io/dataplane-mode=ambient
+  kubectl label namespace http-client istio-injection-
+else
+  kubectl label namespace http-client istio-injection=enabled
+  kubectl label namespace http-client istio.io/dataplane-mode-
+fi
 
 if (( $(kubectl get namespace | grep -c openshift) > 0 )); then
   kubectl apply -f "$DIR/../istio/net-attach-def.yaml" --namespace http-server

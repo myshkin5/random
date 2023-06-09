@@ -24,18 +24,24 @@ fi
 if (( $(kubectl get namespace | grep -c diameter-server) == 0 )); then
   kubectl create namespace diameter-server
 fi
-#kubectl label namespace diameter-server istio-injection=enabled
-kubectl label namespace diameter-server istio-injection-
-kubectl label namespace diameter-server istio.io/dataplane-mode=ambient
-#kubectl label namespace diameter-server istio.io/dataplane-mode-
+if [ "$AMBIENT" == true ]; then
+  kubectl label namespace diameter-server istio.io/dataplane-mode=ambient
+  kubectl label namespace diameter-server istio-injection-
+else
+  kubectl label namespace diameter-server istio-injection=enabled
+  kubectl label namespace diameter-server istio.io/dataplane-mode-
+fi
 
 if (( $(kubectl get namespace | grep -c diameter-client) == 0 )); then
   kubectl create namespace diameter-client
 fi
-#kubectl label namespace diameter-client istio-injection=enabled
-kubectl label namespace diameter-client istio-injection-
-kubectl label namespace diameter-client istio.io/dataplane-mode=ambient
-#kubectl label namespace diameter-client istio.io/dataplane-mode-
+if [ "$AMBIENT" == true ]; then
+  kubectl label namespace diameter-client istio.io/dataplane-mode=ambient
+  kubectl label namespace diameter-client istio-injection-
+else
+  kubectl label namespace diameter-client istio-injection=enabled
+  kubectl label namespace diameter-client istio.io/dataplane-mode-
+fi
 
 if (( $(kubectl get namespace | grep -c openshift) > 0 )); then
   kubectl apply -f "$DIR/../istio/net-attach-def.yaml" --namespace diameter-client
