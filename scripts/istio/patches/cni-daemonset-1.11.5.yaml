@@ -1,7 +1,0 @@
-spec:
-  template:
-    spec:
-      containers:
-      - name: install-cni
-        securityContext:
-          privileged: true

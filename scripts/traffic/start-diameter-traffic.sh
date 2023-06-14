@@ -4,6 +4,8 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+source "$DIR/../helm/commands.sh"
+
 if [ -z "$RELEASE_PATH" ]; then
   >&2 echo "RELEASE_PATH must be defined"
   exit 1
@@ -52,8 +54,10 @@ kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
 kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace diameter-server
 
-helm upgrade diameter-client "$DIAM_CLIENT_CHART" --install --namespace diameter-client "$@"
-helm upgrade diameter-server "$DIAM_SERVER_CHART" --install --namespace diameter-server "$@"
+helm-upgrade diameter-client "$DIAM_CLIENT_CHART" \
+  "${DIAM_CLIENT_VALUES:-}" --namespace diameter-client
+helm-upgrade diameter-server "$DIAM_SERVER_CHART" \
+  "${DIAM_SERVER_VALUES:-}" --namespace diameter-server
 
 POD=""
 while true; do

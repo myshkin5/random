@@ -1,0 +1,16 @@
+external-dns:
+  txtOwnerId: dwayne-cluster1
+
+global:
+  multiCluster:
+    # Should be set to the name of the cluster this installation will run in.
+    # This is required for sidecar injection to properly label proxies.
+    clusterName: "cluster1"
+  network: network1
+
+gateways:
+  istio-ingressgateway:
+    labels:
+      topology.istio.io/network: network1
+    env:
+      ISTIO_META_REQUESTED_NETWORK_VIEW: "network1"

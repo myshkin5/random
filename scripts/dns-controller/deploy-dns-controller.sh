@@ -4,6 +4,8 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+source "$DIR/../helm/commands.sh"
+
 if [[ ${RELEASE_PATH:-} == "" ]]; then
   echo "RELEASE_PATH is undefined"
   exit 1
@@ -15,14 +17,8 @@ if [ ! -d "$CHART_DIR" ]; then
   exit 1
 fi
 
-if [[ ${OVERRIDES:-} == "" ]]; then
-  OVERRIDES=${OVERRIDES:-"$DIR/overrides.yaml"}
-  echo "Defaulting overrides to $OVERRIDES"
-fi
-
-helm upgrade --install dns-controller -n istio-system "$CHART_DIR" \
-  --values="$OVERRIDES" \
-  --set maxConcurrentReconciles=5 \
-  --set dnsClientTimeout=10s
+helm-upgrade dns-controller "$CHART_DIR" \
+  "${DNS_CONTROLLER_VALUES:-"$DIR/config.yaml"}" \
+  --namespace istio-system
 
 kubectl apply -f "$DIR/servicemonitor.yaml"

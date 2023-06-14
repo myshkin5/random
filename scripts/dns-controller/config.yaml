@@ -3,6 +3,8 @@
 #defaultNegativeTTLDuration: 5s
 #ttlCeilingDuration: 5m
 #dnsClientMode: dual-stack
+maxConcurrentReconciles: 5
+dnsClientTimeout: 10s
 loggingLevel: debug
 
 #hub: quay.io/aspenmesh/carrier-grade-releases

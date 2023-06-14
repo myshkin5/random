@@ -4,12 +4,8 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-export DEFAULT_OVERRIDES="$DIR/overrides/default.yaml"
+source "$DIR/../helm/commands.sh"
 source "$DIR/version-support.sh"
-
-TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
-touch "$TMP_FILE"
-trap 'rm "$TMP_FILE"' EXIT
 
 kubectl apply -f "$DIR/istio-ingress-ns.yaml"
 if [[ ${MULTICLUSTER_NETWORK:-} != "" ]]; then
@@ -18,14 +14,9 @@ fi
 kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace istio-ingress
 
-if [[ ${PULLSECRET:-} != "" ]]; then
-  kubectl apply -f "$PULLSECRET" --namespace istio-ingress
-fi
-
-helm upgrade istio-ingress \
+helm-upgrade istio-ingress \
   "$RELEASE_PATH/manifests/charts/gateways/istio-ingress" \
-  --install \
-  --namespace=istio-ingress "${VALUES_OPTS[@]}" "$@"
+  "${ISTIO_INGRESS_VALUES:-}" --namespace=istio-ingress
 
 while true; do
   LOAD_BALANCER=$(kubectl get service istio-ingressgateway \

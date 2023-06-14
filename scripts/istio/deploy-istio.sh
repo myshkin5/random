@@ -4,7 +4,7 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-export DEFAULT_OVERRIDES="$DIR/overrides/default.yaml"
+source "$DIR/../helm/commands.sh"
 source "$DIR/version-support.sh"
 
 mkdir -p bin
@@ -39,28 +39,13 @@ if [ -d "$BASE_CHART/crds" ]; then
   SKIP_CRDS=("--skip-crds")
 fi
 
-helm upgrade istio-base "$BASE_CHART" \
-  --install \
-  --namespace=istio-system "${VALUES_OPTS[@]}" "${SKIP_CRDS[@]}" "$@"
+helm-upgrade istio-base "$BASE_CHART" "${ISTIO_BASE_VALUES:-}" \
+  --namespace=istio-system "${SKIP_CRDS[@]}"
 
 if [[ $OPENSHIFT == "true" || ${CNI_ENABLED:-} == "true" ]]; then
-  CNI_VALUES_OPTS=("${VALUES_OPTS[@]}")
-  if [[ $AM_RELEASE == "false" ]]; then
-    CNI_VALUES_OPTS+=("--values=$DIR/overrides/open-source-cni-values.yaml")
-    CNI_VALUES_OPTS+=("--set=cni.privileged=true")
-  fi
-  helm upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
-    --install \
-    --namespace=kube-system \
-    --set components.cni.enabled=true "${CNI_VALUES_OPTS[@]}" "$@"
-  if [[ $AM_RELEASE == "false" && $ISTIO_MINOR_VERSION == "1.11.5" ]]; then
-    kubectl patch daemonset istio-cni-node -n kube-system \
-      --patch-file "$DIR/patches/cni-daemonset-1.11.5.yaml"
-  fi
-fi
-
-if [[ ${PULLSECRET:-} != "" ]]; then
-  kubectl apply -f "$PULLSECRET" --namespace istio-system
+  helm-upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
+    "${ISTIO_CNI_VALUES:-"$DIR/config/cni/default.yaml"}" \
+    --namespace=kube-system
 fi
 
 while true; do
@@ -76,10 +61,9 @@ while true; do
   sleep 5
 done
 
-helm upgrade istiod \
-  "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
-  --install \
-  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+helm-upgrade istiod "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
+  "${ISTIOD_VALUES:-"$DIR/config/istiod/default.yaml"}" \
+  --namespace=istio-system
 
 kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | while read -r NS _; do
   kubectl get deployment --namespace "$NS" -o name | while read -r DEPLOYMENT; do

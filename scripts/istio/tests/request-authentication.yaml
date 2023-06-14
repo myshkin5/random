@@ -1,12 +1,12 @@
-apiVersion: "security.istio.io/v1beta1"
-kind: "RequestAuthentication"
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
 metadata:
-  name: "ingress-example"
-  namespace: istio-system
+  name: http-server
+  namespace: http-server
 spec:
   selector:
     matchLabels:
-      istio: ingressgateway
+      app.kubernetes.io/name: http-server
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://raw.githubusercontent.com/istio/istio/master/security/tools/jwt/samples/jwks.json"

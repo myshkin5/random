@@ -1,0 +1,18 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: http-server
+  namespace: http-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: http-server
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+#  - to:
+#    - operation:
+#        paths: ["/get", "/bytes/*", "/anything/x"]
+#        hosts: ["example.com"]

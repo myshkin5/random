@@ -1,3 +1,7 @@
+components:
+  cni:
+    enabled: true
+
 istio_cni:
   enabled: true
 

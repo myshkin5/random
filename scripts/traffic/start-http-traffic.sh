@@ -4,6 +4,8 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
+source "$DIR/../helm/commands.sh"
+
 if (( $(kubectl get namespace | grep -c http-server) == 0 )); then
   kubectl create namespace http-server
 fi
@@ -35,8 +37,10 @@ kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
 kubectl apply -f ../private-resources/aspenmesh-pull-secret.yaml \
   --namespace http-client
 
-helm upgrade http-server "$DIR/../../charts/http-server" --install --namespace http-server "$@"
-helm upgrade http-client "$DIR/../../charts/http-client" --install --namespace http-client "$@"
+helm-upgrade http-server "$DIR/../../charts/http-server" \
+  "${HTTP_SERVER_VALUES:-}" --namespace http-server
+helm-upgrade http-client "$DIR/../../charts/http-client" \
+  "${HTTP_CLIENT_VALUES:-}" --namespace http-client
 
 POD=""
 while true; do

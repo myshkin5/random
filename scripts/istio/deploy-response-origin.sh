@@ -4,7 +4,7 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-export DEFAULT_OVERRIDES="$DIR/overrides/default.yaml"
+source "$DIR/../helm/commands.sh"
 source "$DIR/version-support.sh"
 
 RESP_ORIG_CHART="$RELEASE_PATH/manifests/charts/response-origin"
@@ -13,6 +13,5 @@ if [ ! -d "$RESP_ORIG_CHART" ]; then
   exit 1
 fi
 
-helm upgrade response-origin "$RESP_ORIG_CHART" \
-  --install \
-  --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+helm-upgrade response-origin "$RESP_ORIG_CHART" \
+  --namespace=istio-system

@@ -4,7 +4,7 @@ set -xeuEo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-export DEFAULT_OVERRIDES="$DIR/overrides/packet-inspector.yaml"
+source "$DIR/../helm/commands.sh"
 source "$DIR/version-support.sh"
 
 ANALYSIS_CHART="$RELEASE_PATH/samples/aspenmesh/packet-inspector-1-analysis-emulator"
@@ -23,15 +23,15 @@ if [[ ! -d "$PACKET_INSPECTOR_CHART" && "$ISTIO_MINOR_VERSION" != "1.11" ]]; the
 fi
 
 kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
-helm upgrade analysis-emulator "$ANALYSIS_CHART" \
-  --install \
-  --namespace=analysis-emulator "${VALUES_OPTS[@]}" "$@"
+helm-upgrade analysis-emulator "$ANALYSIS_CHART" \
+  "${PI_1_EMULATOR_VALUES:-"$DIR/config/packet-inspector/analysis-emulator-1.yaml"}" \
+  --namespace=analysis-emulator
 
 if [[ -d "$PACKET_INSPECTOR_CHART" ]]; then
   # Already deployed in 1.11 releases
-  helm upgrade packet-inspector "$PACKET_INSPECTOR_CHART" \
-    --install \
-    --namespace=istio-system "${VALUES_OPTS[@]}" "$@"
+  helm-upgrade packet-inspector "$PACKET_INSPECTOR_CHART" \
+    "${PI_AGGREGATOR_VALUES:-"$DIR/config/packet-inspector/aggregator.yaml"}" \
+    --namespace=istio-system
 fi
 
 kubectl apply -f "$DIR/packet-inspector-1-servicemonitor.yaml"

@@ -46,3 +46,4 @@ kubectl apply -f "$METALLB_POOL"
 
 "$DIR/../../metrics-server/deploy-metrics-server.sh"
 "$DIR/../../kube-prometheus/deploy-kube-prom.sh"
+"$DIR/../../gateway-api/deploy-gateway-api.sh"
