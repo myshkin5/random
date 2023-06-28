@@ -27,6 +27,10 @@ helm-upgrade analysis-emulator "$ANALYSIS_CHART" \
   "${PI_1_EMULATOR_VALUES:-"$DIR/config/packet-inspector/analysis-emulator-1.yaml"}" \
   --namespace=analysis-emulator
 
+kubectl wait pods -n analysis-emulator \
+  -l app.kubernetes.io/name=packet-inspector-1-analysis-emulator \
+  --for condition=Ready --timeout=5m
+
 if [[ -d "$PACKET_INSPECTOR_CHART" ]]; then
   # Already deployed in 1.11 releases
   helm-upgrade packet-inspector "$PACKET_INSPECTOR_CHART" \

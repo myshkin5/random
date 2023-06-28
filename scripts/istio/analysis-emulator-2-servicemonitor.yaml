@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: analysis-emulator-2
+  namespace: analysis-emulator-2
+spec:
+  selector:
+    matchLabels:
+      app: packet-inspector-2-analysis-emulator
+  endpoints:
+  - port: http-admin
+    path: /prommetrics

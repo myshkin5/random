@@ -1,0 +1,8 @@
+mode: ""
+processingDelay: ""
+errorStatus: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

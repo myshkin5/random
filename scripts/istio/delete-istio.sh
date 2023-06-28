@@ -20,6 +20,8 @@ kubectl delete ns packet-inspector-benchmark || true
 
 helm delete -n analysis-emulator analysis-emulator || true
 kubectl delete ns analysis-emulator || true
+helm delete -n analysis-emulator-2 analysis-emulator || true
+kubectl delete ns analysis-emulator-2 || true
 kubectl delete ns test-ns || true
 
 kubectl delete ns istio-ready || true
@@ -81,10 +83,15 @@ kubectl delete validatingwebhookconfiguration aspen-mesh-controlplane || true
 kubectl delete validatingwebhookconfiguration aspen-mesh-secure-ingress || true
 kubectl delete validatingwebhookconfiguration traffic-claim-enforcer || true
 
+set +x
+
 FOUND=false
 while read -r NS _; do
-  echo "Found $NS namespace with Istio injection"
-  FOUND=true
+  if [ "$FOUND" == "false" ]; then
+    echo "Found namespace(s) with Istio injection. Execute the following to clean up:"
+    FOUND=true
+  fi
+  echo "  kubectl delete namespace $NS"
 done < <(kubectl get namespace --selector=istio-injection=enabled | tail -n +2)
 if [ "$FOUND" == "true" ]; then
   exit 1
