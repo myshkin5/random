@@ -54,3 +54,5 @@
 2. Install go: https://go.dev/doc/install
 3. `touch ~/go && chmod ugo-rwx ~/go`
 4. Install bazel: https://docs.bazel.build/versions/main/install-ubuntu.html#install-on-ubuntu
+5. Link Wireshark command line tools on macOS:
+   `ln -s /Applications/Wireshark.app/Contents/MacOS/* /usr/local/bin`
