@@ -3,7 +3,7 @@
 set -euEo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd -P)
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 usage() {
   cat <<EOF
@@ -18,7 +18,6 @@ Available options:
 -f, --flag      Some flag description
 -p, --param     Some param description
 EOF
-  exit
 }
 
 cleanup() {
@@ -39,39 +38,34 @@ msg() {
   echo >&2 -e "${1-}"
 }
 
-die() {
-  local msg=$1
-  local code=${2-1} # default exit status 1
-  msg "$msg"
-  exit "$code"
+usage-err() {
+  msg "$1"
+  usage
+  exit 2
 }
 
 parse-params() {
   # default values of variables set from params
   FLAG=0
   PARAM=''
+  ARGS=()
 
-  while true; do
+  while [[ $# -gt 0 ]]; do
     case "${1-}" in
-    -h | --help) usage ;;
-    -v | --verbose) set -x ;;
-    --no-color) NO_COLOR=1 ;;
-    -f | --flag) FLAG=1 ;; # example flag
-    -p | --param) # example named parameter
-      PARAM="${2-}"
-      shift
-      ;;
-    -?*) die "Unknown option: $1" ;;
-    *) break ;;
+    -h | --help)     usage; exit 0 ;;
+    -v | --verbose)  set -x ;;
+    --no-color)      NO_COLOR=1 ;;
+    -f | --flag)     FLAG=1 ;;
+    -p | --param)    PARAM="${2-}"; shift ;;
+    -?*)             usage-err "Unknown option: $1" ;;
+    *)               ARGS+=("${1-}") ;;
     esac
     shift
   done
 
-  args=("$@")
-
   # check required params and arguments
-  [[ -z "${PARAM-}" ]] && die "Missing required parameter: param"
-  [[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
+  [[ -z "${PARAM-}" ]] && usage-err "Missing required parameter: param"
+  [[ ${#ARGS[@]} -eq 0 ]] && usage-err "Missing script arguments"
 
   return 0
 }
@@ -81,7 +75,7 @@ setup-colors
 
 # script logic here
 
-msg "${RED}Read parameters:${NOFORMAT}"
+msg "${RED}Read parameters:${NORMAL}"
 msg "- flag: ${FLAG}"
 msg "- param: ${PARAM}"
-msg "- arguments: ${args[*]-}"
+msg "- arguments: ${ARGS[*]-}"

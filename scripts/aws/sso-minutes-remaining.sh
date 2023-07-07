@@ -23,7 +23,6 @@ Available options:
 -w, --watch         Watch the SSO session indefinitely with a sleep for the
                     specified minutes (default: don't watch)
 EOF
-  exit
 }
 
 setup-colors() {
@@ -39,11 +38,10 @@ msg() {
   echo >&2 -e "${1-}"
 }
 
-die() {
-  local msg=$1
-  local code=${2-1} # default exit status 1
-  msg "$msg"
-  exit "$code"
+usage-err() {
+  msg "$1"
+  usage
+  exit 2
 }
 
 parse-params() {
@@ -54,31 +52,19 @@ parse-params() {
   WATCH_MINUTES=0
   CLI_CACHE=""
 
-  while true; do
+  while [[ $# -gt 0 ]]; do
     case "${1-}" in
-    -h | --help) usage ;;
-    -v | --verbose) set -x ;;
-    --no-color) NO_COLOR=1 ;;
-    -c | --cache-file)
-      CLI_CACHE="${2-}"
-      shift
-      ;;
-    --human) HUMAN=1 ;;
-    --no-human) HUMAN=0 ;;
-    -a | --add)
-      ADD_MINUTES="${2-}"
-      shift
-      ;;
-    -r | --red-threshold)
-      RED_THRESHOLD="${2-}"
-      shift
-      ;;
-    -w | --watch)
-      WATCH_MINUTES="${2-}"
-      shift
-      ;;
-    -?*) die "Unknown option: $1" ;;
-    *) break ;;
+    -h | --help)           usage; exit 0 ;;
+    -v | --verbose)        set -x ;;
+    --no-color)            NO_COLOR=1 ;;
+    -c | --cache-file)     CLI_CACHE="${2-}"; shift ;;
+    --human)               HUMAN=1 ;;
+    --no-human)            HUMAN=0 ;;
+    -a | --add)            ADD_MINUTES="${2-}"; shift ;;
+    -r | --red-threshold)  RED_THRESHOLD="${2-}"; shift ;;
+    -w | --watch)          WATCH_MINUTES="${2-}"; shift ;;
+    -?*)                   usage-err "Unknown option: $1" ;;
+    *)                     ;;
     esac
     shift
   done
@@ -92,8 +78,8 @@ setup-colors
 if [ -z "$CLI_CACHE" ]; then
   CLI_CACHE_DIR=$HOME/.aws/cli/cache
   if [ ! -d "$CLI_CACHE_DIR" ]; then
-    echo -1
-    exit
+    msg "$CLI_CACHE_DIR does not exist"
+    exit 1
   fi
 
   CLI_CACHE=$(gfind "$CLI_CACHE_DIR" -type f -printf '%T@ %p\n' | sort | cut -d ' ' -f 2- | tail -1)
