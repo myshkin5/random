@@ -19,7 +19,12 @@ else
 fi
 export OPENSHIFT
 
-VER=$(grep -e "^version:" "$RELEASE_PATH/manifests/charts/base/Chart.yaml" | awk '{ print $2 }')
+CHARTS_PATH=$RELEASE_PATH
+if [[ -d "$CHARTS_PATH/manifests/charts" ]]; then
+  CHARTS_PATH+=/manifests/charts
+fi
+
+VER=$(grep -e "^version:" "$CHARTS_PATH/base/Chart.yaml" | awk '{ print $2 }')
 ISTIO_MINOR_VERSION=$(echo "$VER" | cut -d \. -f "1-2")
 ISTIO_PATCH_VERSION=$(echo "$VER" | cut -d \. -f "1-3" | cut -d - -f 1)
 export ISTIO_MINOR_VERSION ISTIO_PATCH_VERSION

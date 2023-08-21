@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 set -euEo pipefail
+
+cleanup() {
+  trap - SIGINT SIGTERM ERR EXIT
+  # script cleanup here
+}
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
@@ -18,11 +23,6 @@ Available options:
 -f, --flag      Some flag description
 -p, --param     Some param description
 EOF
-}
-
-cleanup() {
-  trap - SIGINT SIGTERM ERR EXIT
-  # script cleanup here
 }
 
 setup-colors() {

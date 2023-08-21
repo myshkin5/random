@@ -8,8 +8,10 @@ source "$DIR/../helm/commands.sh"
 source "$DIR/version-support.sh"
 
 mkdir -p bin
-rm -f bin/istioctl
-ln -s "$RELEASE_PATH/bin/istioctl" bin/
+if [[ -f "$RELEASE_PATH/bin/istioctl" ]]; then
+  rm -f bin/istioctl
+  ln -s "$RELEASE_PATH/bin/istioctl" bin/
+fi
 
 kubectl apply -f "$DIR/istio-ns.yaml"
 if [[ ${MULTICLUSTER_NETWORK:-} != "" ]]; then
@@ -32,7 +34,12 @@ if [[ ${UPDATE_CA_CERT:-} != "false" ]]; then
     kubectl apply -f -
 fi
 
-BASE_CHART="$RELEASE_PATH/manifests/charts/base"
+CHARTS_PATH=$RELEASE_PATH
+if [[ -d "$CHARTS_PATH/manifests/charts" ]]; then
+  CHARTS_PATH+=/manifests/charts
+fi
+
+BASE_CHART="$CHARTS_PATH/base"
 SKIP_CRDS=()
 if [ -d "$BASE_CHART/crds" ]; then
   kubectl apply -f "$BASE_CHART/crds"
@@ -43,7 +50,11 @@ helm-upgrade istio-base "$BASE_CHART" "${ISTIO_BASE_VALUES:-}" \
   --namespace=istio-system "${SKIP_CRDS[@]}"
 
 if [[ $OPENSHIFT == "true" || ${CNI_ENABLED:-} == "true" ]]; then
-  helm-upgrade istio-cni "$RELEASE_PATH/manifests/charts/istio-cni" \
+  CNI_PATH=$CHARTS_PATH/cni
+  if [[ ! -d "$CNI_PATH" ]]; then
+    CNI_PATH=$CHARTS_PATH/istio-cni
+  fi
+  helm-upgrade istio-cni "$CNI_PATH" \
     "${ISTIO_CNI_VALUES:-"$DIR/config/cni/default.yaml"}" \
     --namespace=kube-system
 fi
@@ -61,7 +72,7 @@ while true; do
   sleep 5
 done
 
-helm-upgrade istiod "$RELEASE_PATH/manifests/charts/istio-control/istio-discovery" \
+helm-upgrade istiod "$CHARTS_PATH/istio-control/istio-discovery" \
   "${ISTIOD_VALUES:-"$DIR/config/istiod/default.yaml"}" \
   --namespace=istio-system
 
