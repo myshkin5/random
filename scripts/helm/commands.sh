@@ -17,7 +17,7 @@ helm-upgrade() {
       if [ -f "$V" ]; then
         OPTS+=("--values=$V")
       else
-        OPTS+=("$V")
+        OPTS+=("$(echo "$V" | tr -d ' ')")
       fi
     done
   fi
