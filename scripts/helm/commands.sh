@@ -11,6 +11,9 @@ helm-upgrade() {
   if [ -n "$VALUES" ]; then
     IFS=':' read -ra VS <<< "$VALUES"
     for V in "${VS[@]}"; do
+      if [[ -z "$V" ]]; then
+        continue
+      fi
       if [ -f "$V" ]; then
         OPTS+=("--values=$V")
       else

@@ -24,11 +24,11 @@ fi
 
 kubectl apply -f "$DIR/analysis-emulator-ns.yaml"
 helm-upgrade analysis-emulator "$ANALYSIS_CHART" \
-  "${PI_1_EMULATOR_VALUES:-"$DIR/config/packet-inspector/analysis-emulator-1.yaml"}" \
+  "${PI_1_EMULATOR_VALUES:-}" \
   --namespace=analysis-emulator
 
 kubectl wait pods -n analysis-emulator \
-  -l app.kubernetes.io/name=packet-inspector-1-analysis-emulator \
+  -l "app in (packet-inspector-1-analysis-emulator, analysis-emulator)" \
   --for condition=Ready --timeout=5m
 
 if [[ -d "$PACKET_INSPECTOR_CHART" ]]; then

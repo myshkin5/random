@@ -1,0 +1,4 @@
+aspen-mesh-packet-inspector:
+  enabled: true
+  diameterCapture:
+    enabled: true

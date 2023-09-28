@@ -7,19 +7,23 @@
    2. Add `(direnv git pyenv ssh-agent z)` to `plugins` list
 
       NOTE: DO NOT use `ssh-agent` on hosts that will be ssh'ed to (it overwrites forwarded keys)
-   3. Comment out iterm integration (handled below)
+   3. Comment out iterm integration (handled below) TODO: or not?
 5. Link in the custom scripts:
     ```shell
     ln -s $HOME/workspace/random/config/zsh-custom/aliases.zsh $HOME/.oh-my-zsh/custom
+    # TODO: outdated
     ln -s $HOME/workspace/random/config/zsh-custom/aws.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-01-command_exists.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-02-base.theme.bash.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/bash-it-03-githelpers.theme.bash.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/env.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/idea.zsh $HOME/.oh-my-zsh/custom
+    # TODO: only on non-UTM build servers
     ln -s $HOME/workspace/random/config/zsh-custom/idle-shutdown.zsh $HOME/.oh-my-zsh/custom
+    # TODO: Handled by shell integration install above
     ln -s $HOME/workspace/random/config/zsh-custom/iterm2.zsh $HOME/.oh-my-zsh/custom
     ln -s $HOME/workspace/random/config/zsh-custom/themes/dwayne.zsh-theme $HOME/.oh-my-zsh/custom/themes
+    # TODO: build-server.zsh (only on non-build servers)
     ```
 6. Create `$HOME/.oh-my-zsh/custom/openstack.zsh`:
     ```shell
@@ -27,3 +31,4 @@
     export OS_PROJECT_ID=< Identity -> Projects -> Project ID >
     export OS_USER_ID=< Identity -> Users -> User ID >
     ```
+7. `$HOME/bin # TODO`

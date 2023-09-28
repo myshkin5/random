@@ -1,0 +1,7 @@
+aspen-mesh-packet-inspector:
+  httpCapture:
+    excludeNamespaces:
+    - http-server
+
+    excludePods:
+    - http-client.*

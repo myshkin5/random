@@ -15,6 +15,7 @@ global:
       # namespace as the other istio components.
       address: aspen-mesh-jaeger-collector.istio-system:9411
   enableEccCertificates: true
+  certificateCustomFields: true
 
 #  logging:
 #    level: default:debug
@@ -36,3 +37,6 @@ pilot:
   traceSampling: "1.0"
   enableProtocolSniffingForInbound: false
   enableProtocolSniffingForOutbound: false
+
+aspen-mesh-event-storage:
+  enabled: false

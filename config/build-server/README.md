@@ -10,6 +10,15 @@
     8. 500 GB gp3 root volume
 2. Create an EIP and associate it with the instance
 
+### UTM instance creation
+1. https://docs.getutm.app/settings-qemu/system/#cpu
+2. 500 GB storage
+3. `$HOME/workspace/utm-shared` shared directory
+4. Update to newer installer
+5. Username `ubuntu` (password will be disabled later)
+6. Install OpenSSH server
+7. No featured server snaps
+
 ### Required
 1. `sudo apt-get update && sudo apt-get upgrade`
 2. Install typical packages: `sudo apt-get install build-essential clang direnv jq make net-tools protobuf-compiler zsh`
@@ -23,23 +32,24 @@
         sudo cp ~ubuntu/.ssh/authorized_keys ~dschultz/.ssh/authorized_keys
         sudo chown -R dschultz:dschultz ~dschultz/.ssh
         ```
-    2. Append `dschultz ALL=(ALL) NOPASSWD:ALL` via `visudo`
-    3. Login as `dschultz` with agent forwarded ssh keys for github
+    2. (UTM only) `sudo vi ~dschultz/.ssh/authorized_keys` and paste in public key
+    3. Append `dschultz ALL=(ALL) NOPASSWD:ALL` via `visudo`
+    4. Login as `dschultz` with agent forwarded ssh keys for github
+    5. (UTM only) `sudo deluser ubuntu`
 4. Install ohmyzsh: `sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
 5. Set up random config:
     1. From laptop in random working dir `dev-sync.sh`
     2. `ln -s $HOME/workspace/random/config/git/gitconfig $HOME/.gitconfig`
     3. [zsh custom](../zsh-custom/README.md)
 6. Install docker:
-    1. https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
-    2. https://docs.docker.com/engine/install/ubuntu/#install-docker-engine
-    3. https://docs.docker.com/engine/install/linux-postinstall/
+    1. https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+    2. https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
         1. `sudo usermod -aG docker $USER`
-    4. https://docs.docker.com/engine/install/linux-postinstall/#configure-docker-to-start-on-boot
-    5. https://docs.docker.com/config/daemon/ipv6/
+    3. https://docs.docker.com/engine/install/linux-postinstall/#configure-docker-to-start-on-boot-with-systemd
+    4. https://docs.docker.com/config/daemon/ipv6/
         1. Need to use non-conflicting IPv4 address pools in some environments
-    6. `sudo reboot`
-    7. `docker run hello-world`
+    5. `sudo reboot`
+    6. `docker run hello-world`
 7. Install gcloud: https://cloud.google.com/sdk/docs/install#deb
     1. `export AUTH_HEADER="Authorization: Bearer $(gcloud auth print-access-token)"`
 8. Install `kubectl`: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management

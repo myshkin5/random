@@ -2,7 +2,7 @@
 
 set -euEo pipefail
 
-WORK_DIR=$(mktemp -d -t "$(basename "${BASH_SOURCE[0]}")")
+WORK_DIR=$(mktemp -d -t "$(basename "${BASH_SOURCE[0]}.XXXXXXX")")
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   rm -rf "$WORK_DIR"

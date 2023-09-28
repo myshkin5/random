@@ -1,3 +1,4 @@
+hub: quay.io/aspenmesh/releases-pr
 global:
   hub: quay.io/aspenmesh/releases-pr
   publicImagesHub: quay.io/aspenmesh/am-istio-pr

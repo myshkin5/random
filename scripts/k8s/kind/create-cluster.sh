@@ -9,8 +9,13 @@ if [ -z "${KIND_VERSION:-}" ]; then
     | jq -r '.tag_name' | cut -d- -f5)
 fi
 
-BINARY="kind-linux-amd64-$KIND_VERSION"
-DOWNLOAD="https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64"
+ARCH=amd64
+if [[ $(uname --processor) == "aarch64" ]]; then
+  ARCH=arm64
+fi
+
+BINARY="kind-linux-$ARCH-$KIND_VERSION"
+DOWNLOAD="https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-$ARCH"
 
 curl --location --output "$BINARY" "$DOWNLOAD"
 chmod +x "$BINARY"
