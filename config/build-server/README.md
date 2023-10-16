@@ -61,8 +61,9 @@
 ### Optional
 1. Install `gh`: https://github.com/cli/cli/blob/trunk/docs/install_linux.md
     1. `gh auth login`
-2. Install go: https://go.dev/doc/install
-3. `touch ~/go && chmod ugo-rwx ~/go`
-4. Install bazel: https://docs.bazel.build/versions/main/install-ubuntu.html#install-on-ubuntu
-5. Link Wireshark command line tools on macOS:
+2. https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/install.md
+3. Install go: https://go.dev/doc/install
+4. `touch ~/go && chmod ugo-rwx ~/go`
+5. Install bazel: https://docs.bazel.build/versions/main/install-ubuntu.html#install-on-ubuntu
+6. Link Wireshark command line tools on macOS:
     `ln -s /Applications/Wireshark.app/Contents/MacOS/* /usr/local/bin`
