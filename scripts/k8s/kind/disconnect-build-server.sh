@@ -13,7 +13,7 @@ if [ -z "$BUILD_USER" ]; then
 fi
 
 PID=$(pgrep -l -f ssh | \
-  grep "$BUILD_USER@$BUILD_SERVER" | grep 443 | grep -v sudo | \
+  grep "$BUILD_USER@$BUILD_SERVER" | grep ":443:" | grep -v sudo | \
   awk '{ print $1 }' || true)
 if [ -n "$PID" ]; then
   sudo kill "$PID"

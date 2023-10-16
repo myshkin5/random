@@ -6,7 +6,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 source "$DIR/version-support.sh"
 
-TMP_FILE=$(mktemp /tmp/deploy-istio.XXXXXX)
+TMP_FILE=$(mktemp -t "$(basename "${BASH_SOURCE[0]}.XXXXXXX")")
 touch "$TMP_FILE"
 trap 'rm "$TMP_FILE"' EXIT
 
