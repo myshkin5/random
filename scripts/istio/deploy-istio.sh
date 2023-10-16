@@ -76,6 +76,8 @@ helm-upgrade istiod "$CHARTS_PATH/istio-control/istio-discovery" \
   "${ISTIOD_VALUES:-"$DIR/config/istiod/default.yaml"}" \
   --namespace=istio-system
 
+kubectl apply -f "$RELEASE_PATH/samples/addons/extras/prometheus-operator.yaml"
+
 kubectl get namespace --selector=istio-injection=enabled | tail -n +2 | while read -r NS _; do
   kubectl get deployment --namespace "$NS" -o name | while read -r DEPLOYMENT; do
     kubectl rollout restart --namespace "$NS" "$DEPLOYMENT"

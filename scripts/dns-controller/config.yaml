@@ -17,3 +17,6 @@ imagePullSecrets:
 - name: aspenmesh-istio-private-pr-pull-secret
 
 #replicas: 2
+
+serviceMonitor:
+  enabled: true

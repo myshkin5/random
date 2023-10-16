@@ -21,5 +21,3 @@ helm-upgrade analysis-emulator "$ANALYSIS_CHART" \
 kubectl wait pods -n analysis-emulator-2 \
   -l app.kubernetes.io/name=packet-inspector-2-analysis-emulator \
   --for condition=Ready --timeout=5m
-
-kubectl apply -f "$DIR/analysis-emulator-2-servicemonitor.yaml"

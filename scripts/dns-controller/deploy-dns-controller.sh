@@ -20,5 +20,3 @@ fi
 helm-upgrade dns-controller "$CHART_DIR" \
   "${DNS_CONTROLLER_VALUES:-"$DIR/config.yaml"}" \
   --namespace istio-system
-
-kubectl apply -f "$DIR/servicemonitor.yaml"

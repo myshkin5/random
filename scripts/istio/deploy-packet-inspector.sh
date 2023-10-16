@@ -37,6 +37,3 @@ if [[ -d "$PACKET_INSPECTOR_CHART" ]]; then
     "${PI_AGGREGATOR_VALUES:-"$DIR/config/packet-inspector/aggregator.yaml"}" \
     --namespace=istio-system
 fi
-
-kubectl apply -f "$DIR/packet-inspector-1-servicemonitor.yaml"
-kubectl apply -f "$DIR/analysis-emulator-servicemonitor.yaml"

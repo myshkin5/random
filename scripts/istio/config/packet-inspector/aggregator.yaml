@@ -2,6 +2,17 @@ analysis:
   maxConcurrentMessages: 20
 
 resources:
+  requests:
+    memory: "4Gi"
+    cpu: 2
   limits:
     memory: "4Gi"
     cpu: 2
+
+#daemonSetBufferMemoryPercent: 20
+#daemonSetGCPercent: 200
+#daemonSetGoMemLimit: 3500MiB
+
+serviceMonitor:
+  enabled: true
+  interval: 5s

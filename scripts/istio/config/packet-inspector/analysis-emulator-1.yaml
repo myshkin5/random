@@ -1,5 +1,10 @@
 analysis:
   # mode is either `normal` or `benchmark`. `benchmark` does not write capture
   # files and tracks unique requests
-  mode: normal
-  processingDelay: 25ms
+  mode: benchmark
+#  processingDelay: 5ms
+#  replicas: 10
+
+serviceMonitor:
+  enabled: true
+  interval: 5s
