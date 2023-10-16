@@ -47,6 +47,12 @@ kubectl wait pods -n metallb-system -l app=metallb --for condition=Ready --timeo
 kubectl apply -f "$DIR/metallb-l2ad.yaml"
 
 METALLB_POOL=${METALLB_POOL:-"$DIR/metallb-pool.yaml"}
+METALLB_CIDR24=$(yq '.spec.addresses[0]' "$METALLB_POOL" | cut -d\. -f1-3)
+DOCKER_CIDR24=$(docker network inspect -f json kind | jq -r '.[].IPAM.Config[0].Subnet' | cut -d\. -f1-3)
+if [[ "$METALLB_CIDR24" != "$DOCKER_CIDR24" ]]; then
+  echo "Update metallb pool to use Docker network ($DOCKER_CIDR24)"
+  exit 1
+fi
 kubectl apply -f "$METALLB_POOL"
 
 "$DIR/../../metrics-server/deploy-metrics-server.sh"
