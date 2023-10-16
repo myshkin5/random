@@ -42,26 +42,24 @@ helm-upgrade http-server "$DIR/../../charts/http-server" \
 helm-upgrade http-client "$DIR/../../charts/http-client" \
   "${HTTP_CLIENT_VALUES:-}" --namespace http-client
 
-POD=""
+FAILED=0
 while true; do
-  if [ "$POD" == "" ]; then
-    POD=$(kubectl get pod -n http-client \
-      -l app.kubernetes.io/name=http-client \
-      -o jsonpath='{.items[0].metadata.name}' || true)
-    if [ "$POD" == "" ]; then
-      sleep 5
-      continue
+  while read -r POD; do
+    RET_CODE=0
+    (kubectl exec -n http-client -c http-client "$POD" \
+      -- wget -O /dev/null http://http-server.http-server.svc.cluster.local:8000/get) || RET_CODE=$?
+    if [ "$RET_CODE" != 0 ]; then
+      FAILED=1
+      break
     fi
+  done < <(kubectl get pods -n http-client -l app.kubernetes.io/name=http-client -o json | \
+    jq -r '.items[].metadata.name')
+
+  if [ "$FAILED" == 1 ]; then
+    FAILED=0
+    continue
   fi
-  ORIGIN=$(kubectl exec -n http-client -c http-client "$POD" \
-    -- curl --silent http://http-server.http-server.svc.cluster.local:8000/get | jq -r ".origin") || true
-  if [[ "$ORIGIN" == "127.0.0.1" ]]; then
-    break
-  fi
+  break
+
   sleep 5
 done
-
-kubectl cp ~/workspace/hey_linux_amd64 -c http-client "http-client/$POD:hey"
-kubectl exec -n http-client -c http-client "$POD" -- chmod +x /hey
-kubectl exec -n http-client -c http-client "$POD" \
-  -- ./hey -n 1000 -q 10 -c 10 http://http-server.http-server.svc.cluster.local:8000/get

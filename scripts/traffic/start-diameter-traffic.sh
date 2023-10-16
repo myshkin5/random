@@ -59,22 +59,24 @@ helm-upgrade diameter-client "$DIAM_CLIENT_CHART" \
 helm-upgrade diameter-server "$DIAM_SERVER_CHART" \
   "${DIAM_SERVER_VALUES:-}" --namespace diameter-server
 
-POD=""
+FAILED=0
 while true; do
-  if [ "$POD" == "" ]; then
-    POD=$(kubectl get pod -n diameter-client \
-      -l app.kubernetes.io/name=diameter-client \
-      -o jsonpath='{.items[0].metadata.name}' || true)
-    if [ "$POD" == "" ]; then
-      sleep 5
-      continue
+  while read -r POD; do
+    RET_CODE=0
+    kubectl exec -n diameter-client -c diameter-client "$POD" \
+      -- diameter-client -addr diameter-server.diameter-server:3868 -hello || RET_CODE=$?
+    if [ "$RET_CODE" != 0 ]; then
+      FAILED=1
+      break
     fi
+  done < <(kubectl get pods -n diameter-client -l app.kubernetes.io/name=diameter-client -o json | \
+    jq -r '.items[].metadata.name')
+
+  if [ "$FAILED" == 1 ]; then
+    FAILED=0
+    continue
   fi
-  RET_CODE=0
-  kubectl exec -n diameter-client -c diameter-client "$POD" \
-    -- diameter-client -addr diameter-server.diameter-server:3868 -hello || RET_CODE=$?
-  if [[ "$RET_CODE" == "0" ]]; then
-    break
-  fi
+  break
+
   sleep 5
 done
