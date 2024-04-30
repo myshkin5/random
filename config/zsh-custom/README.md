@@ -50,6 +50,7 @@
     mkdir $HOME/bin
     ln -s $HOME/workspace/random/scripts/build-server/dev-diff.sh $HOME/bin
     ln -s $HOME/workspace/random/scripts/build-server/dev-sync.sh $HOME/bin
+    ln -s $HOME/workspace/random/scripts/build-server/rev-sync.sh $HOME/bin
     ln -s $HOME/workspace/twistio-docs/docs/_static/helper-scripts/download-release.sh $HOME/bin
     ln -s $HOME/workspace/random/scripts/git/open-pr.sh $HOME/bin
     ln -s $HOME/workspace/random/scripts/openstack/os-login.sh $HOME/bin

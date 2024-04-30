@@ -70,7 +70,7 @@ while true; do
       LOCAL_SITE+="."
     fi
 
-    POD=$(kubectl get pods -n traffic-client -l app=client -o jsonpath='{.items[0].metadata.name}')
+    POD=$(kubectl get pods -n http-client -l app.kubernetes.io/name=http-client -o jsonpath='{.items[0].metadata.name}')
 
     CURL=$(kubectl exec -n traffic-client -c client "$POD" -- \
       curl "$PROTOCOL://$LOCAL_SITE/" "${LOCAL_OPTS[@]}" 2>&1) || true

@@ -5,6 +5,7 @@ set -xEeuo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 if [ "${SKIP_KUBE_PROM:-}" == "true" ]; then
+  echo "SKIP_KUBE_PROM is set. Exiting without installing kube-prom"
   exit 0
 fi
 

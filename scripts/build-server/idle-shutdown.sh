@@ -4,7 +4,7 @@ set -eEou pipefail
 
 is-active() {
   RET_CODE=0
-  pgrep -u dschultz -f ssh > /dev/null || RET_CODE=$?
+  pgrep -u dschultz -f sshd > /dev/null || RET_CODE=$?
   if [[ $RET_CODE == 0 ]]; then
     echo 1
     return

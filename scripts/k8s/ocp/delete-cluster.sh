@@ -2,18 +2,32 @@
 
 set -xEeuo pipefail
 
-if [[ ${DNS_ZONE:-} == "" ]]; then
-  echo "DNS_ZONE is undefined"
-  exit 1
+cleanup() {
+  trap - SIGINT SIGTERM ERR EXIT
+  if [ -n "${ORIG_GOOGLE_ACCOUNT:-}" ]; then
+    gcloud config set account "$ORIG_GOOGLE_ACCOUNT"
+  fi
+}
+trap cleanup SIGINT SIGTERM ERR EXIT
+
+if [ -n "${OCP_INSTALLER_SA_KEY:-}" ]; then
+  export GOOGLE_APPLICATION_CREDENTIALS=$PWD/ocp-sa-keyfile.json
+  gcloud secrets versions access latest --secret="${OCP_INSTALLER_SA_KEY}" > "$GOOGLE_APPLICATION_CREDENTIALS"
+  ORIG_GOOGLE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+  gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --verbosity=debug
+else
+  SECRET=$(aws secretsmanager get-secret-value \
+    --secret-id openshift_passthrough_credentials | jq -r '.SecretString')
+  AWS_ACCESS_KEY_ID=$(echo "$SECRET" | jq -r '.aws_access_key_id')
+  AWS_SECRET_ACCESS_KEY=$(echo "$SECRET" | jq -r '.aws_secret_access_key')
+  export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 fi
 
-SECRET=$(aws secretsmanager get-secret-value \
-  --secret-id openshift_passthrough_credentials | jq -r '.SecretString')
-AWS_ACCESS_KEY_ID=$(echo "$SECRET" | jq -r '.aws_access_key_id')
-AWS_SECRET_ACCESS_KEY=$(echo "$SECRET" | jq -r '.aws_secret_access_key')
-export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+openshift-install destroy cluster --dir=. --log-level=debug || true
 
-openshift-install destroy cluster --dir=. --log-level=info || true
+if [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
+  exit
+fi
 
 aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$NAME*" | jq
 

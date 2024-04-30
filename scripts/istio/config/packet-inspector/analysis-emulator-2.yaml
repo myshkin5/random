@@ -1,11 +1,8 @@
-mode: ""
-processingDelay: ""
-errorStatus: ""
-
-resources: {}
-nodeSelector: {}
-tolerations: []
-affinity: {}
+# mode is either `normal` or `benchmark`. `benchmark` does not write capture
+# files and tracks unique requests
+mode: benchmark
+#processingDelay: 5ms
+replicaCount: 4
 
 serviceMonitor:
   enabled: true

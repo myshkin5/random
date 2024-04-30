@@ -1,2 +1,2 @@
-serviceFqdn: ""
-servicePort: 0
+serviceFqdn: packet-inspector-2-analysis-emulator.analysis-emulator-2.svc.cluster.local
+servicePort: 9000

@@ -1,32 +1,40 @@
 [alias]
-	st = status
-	co = checkout
-	br = branch
-	ci = commit
-	cp = cherry-pick
-	sur = submodule update --init --recursive
-        lol = log --graph --decorate --pretty=oneline --abbrev-commit
-        lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
-	stash-all = stash --keep-index --include-untracked
-	aliases = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort
-	short = rev-parse --short HEAD
-	config-prs-upstream = config --add remote.upstream.fetch '+refs/pull/*/head:refs/remotes/upstream/pr/*'
-	config-prs-origin = config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
-	recent = !git --no-pager branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+    aliases = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort
+    br = branch
+    ci = commit
+    co = checkout
+    cp = cherry-pick
+    gone = "!f() { git fetch --all --prune; git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D; }; f"
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    recent = !git --no-pager branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+    short = rev-parse --short HEAD
+    st = status
+    stash-all = stash --keep-index --include-untracked
+    sur = submodule update --init --recursive
+    sw = switch
 [push]
-	autoSetupRemote = true
-	default = current
+    autoSetupRemote = true
+    default = current
 [user]
-	name = Dwayne Schultz
-	email = myshkin5@users.noreply.github.com
-[url "git@github.com:F5-External"]
-	insteadOf = https://github.com/F5-External
-[url "git@github.com:aspenmesh"]
-	insteadOf = https://github.com/aspenmesh
+    name = Dwayne Schultz
+    email = myshkin5@users.noreply.github.com
+[url "ssh://git@github.com:F5-External/"]
+    insteadOf = https://github.com/F5-External/
+[url "ssh://git@github.com:aspenmesh/"]
+    insteadOf = https://github.com/aspenmesh/
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
+[url "ssh://git@gitlab.f5net.com/"]
+    insteadOf = https://gitlab.f5net.com/
+[url "ssh://git@gitswarm.f5net.com/"]
+    insteadOf = https://gitswarm.f5net.com/
 [init]
-	defaultBranch = main
+    defaultBranch = main
 [credential]
-	helper = 
-	helper = /usr/local/share/gcm-core/git-credential-manager
+    helper =
+    helper = /usr/local/share/gcm-core/git-credential-manager
 [credential "https://dev.azure.com"]
-	useHttpPath = true
+    useHttpPath = true
+[credential "https://gitswarm.f5net.com"]
+	provider = generic

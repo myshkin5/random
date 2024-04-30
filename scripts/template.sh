@@ -29,6 +29,7 @@ setup-colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
     NORMAL=$(tput sgr0) RED=$(tput setaf 1) GREEN=$(tput setaf 2)
     YELLOW=$(tput setaf 3) BLUE=$(tput setaf 4) CYAN=$(tput setaf 6)
+    echo "$NORMAL"
   else
     NORMAL='' RED='' GREEN='' YELLOW='' BLUE='' CYAN=''
   fi
