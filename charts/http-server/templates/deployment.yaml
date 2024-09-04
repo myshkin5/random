@@ -35,6 +35,15 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          command: ["bash"]
+          args:
+          - "-c"
+          - |
+            apt-get update && apt-get install curl iproute2 tcpdump iputils-ping -y;
+            ip link add link net1 name net1.6 type vlan id 6;
+            ip link set dev net1.6 up;
+            ip addr add 10.20.20.20/24 dev net1.6;
+            ./run.sh;
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

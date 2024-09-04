@@ -20,15 +20,21 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+podAnnotations:
+  k8s.v1.cni.cncf.io/networks:  '[ { "name": "argo-network", "ips": ["10.20.21.234/24"] } ]'
 #  sidecar.istio.io/componentLogLevel: "lua:debug"
 #  sidecar.istio.io/logLevel: "debug"
 
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
+securityContext:
+  privileged: true
+  capabilities:
+    add:
+      - NET_ADMIN
+      - NET_RAW
+  #   add: ["SYS_ADMIN"]
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
