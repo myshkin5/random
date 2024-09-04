@@ -29,9 +29,17 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: williamyeh/hey
+          image: ubuntu
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sleep", "3650d"]
+          command: ["bash"]
+          args:
+          - "-c"
+          - |
+            apt-get update && apt-get install curl iproute2 tcpdump iputils-ping -y;
+            ip link add link net1 name net1.5 type vlan id 5;
+            ip link set dev net1.5 up;
+            ip addr add 172.178.1.150/24 dev net1.5;
+            /bin/sleep infinity;
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
